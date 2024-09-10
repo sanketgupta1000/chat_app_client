@@ -4,6 +4,7 @@ const Button = function({
     onClick,
     // to be displayed inside button
     children,
+    className="",
     ...props
 })
 {
@@ -23,7 +24,7 @@ const Button = function({
         <button
         
             type={type}
-            className={`btn ${colourClasses[colour]}`}
+            className={`btn ${colourClasses[colour]} ${className}`}
             onClick={ onClick?onClick:()=>{} }
             {...props}
 
