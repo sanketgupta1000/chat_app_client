@@ -57,7 +57,7 @@ function UserAvatar({
             {
             matchingInterests &&
             <div className='mt-2 text-sm text-gray-500'>
-                Matching Interests: {matchingInterests.map((i)=><span key={i}>{i} &nbsp;</span>)}
+                Matching Interests: {matchingInterests.toString()}
             </div>
             }
 
