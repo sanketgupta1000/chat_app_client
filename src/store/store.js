@@ -5,10 +5,10 @@ import { friendshipRequestsReducer, groupsReducer, privateChatsReducer, userRedu
 const store = configureStore(
     {
         reducer: {
-            friendshipRequestsReducer,
-            groupsReducer,
-            privateChatsReducer,
-            userReducer
+            friendshipRequests: friendshipRequestsReducer,
+            groups: groupsReducer,
+            privateChats: privateChatsReducer,
+            user: userReducer
         }
     }
 )

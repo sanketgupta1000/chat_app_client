@@ -1,18 +1,35 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+// const initialState = {
+
+//     // is the user logged in
+//     isLoggedIn: false,
+//     // the value of jwt, incase logged in
+//     // get from local storage
+//     token: localStorage.getItem("token"),
+//     // user id
+//     userId: null,
+//     // name
+//     userName: null,
+//     // email
+//     userEmail: null
+
+// };
+
+// dummy initial state
 const initialState = {
 
     // is the user logged in
-    isLoggedIn: false,
+    isLoggedIn: true,
     // the value of jwt, incase logged in
     // get from local storage
-    token: localStorage.getItem("token"),
+    token: "jdndjfdjsdjdsjfsfbjfbdsjhsbf",
     // user id
-    userId: null,
+    userId: "jdfndjA165464SDJBFDJNSDJFN",
     // name
-    userName: null,
+    userName: "Sanket Gupta",
     // email
-    userEmail: null
+    userEmail: "sanketgupta1000@gmail.com"
 
 };
 
