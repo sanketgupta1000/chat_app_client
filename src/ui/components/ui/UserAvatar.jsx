@@ -46,7 +46,9 @@ function UserAvatar({
 
                     {
                     lastMessage &&
-                    <div className='text-sm text-gray-500'>{lastMessageFrom}:{lastMessage}</div>
+                    <div className='text-sm text-gray-500'>
+                        {lastMessageFrom}: {lastMessage}
+                    </div>
                     }
 
                 </div>
