@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 // const initialState = {
 //     privateChats: []
 //     // one object in array will have following fields:
-//     // privateChatId, user1Id, user1Name, user1Email, user2Id, user2Name, user2Email, lastMsg, lastMsgSenderId,
+//     // privateChatId, user1Id, user1Name, user2Id, user2Name, lastMsg, lastMsgSenderId,
 //     // and an array of messages
 //     // each message contains following info
 //     // messageId, content, senderId, sentDateTime, status, statusDateTIme
@@ -16,10 +16,10 @@ const initialState = {
             privateChatId: "p1",
             user1Id: "jdfndjA165464SDJBFDJNSDJFN",
             user1Name: "Sanket Gupta",
-            user1Email: "sanketgupta1000@gmail.com",
+            // user1Email: "sanketgupta1000@gmail.com",
             user2Id: "user2",
             user2Name: "Sumit Gohil",
-            user2Email: "gohilsumit15@gmail.com",
+            // user2Email: "gohilsumit15@gmail.com",
             lastMsg: "Hi Sanket!",
             lastMsgSenderId: "user2",
             messages: []
@@ -29,10 +29,10 @@ const initialState = {
             privateChatId: "p2",
             user1Id: "jdfndjA165464SDJBFDJNSDJFN",
             user1Name: "Sanket Gupta",
-            user1Email: "sanketgupta1000@gmail.com",
+            // user1Email: "sanketgupta1000@gmail.com",
             user2Id: "user3",
             user2Name: "Harshpalsinh Zala",
-            user2Email: "abc123@gmail.com",
+            // user2Email: "abc123@gmail.com",
             lastMsg: "Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!",
             lastMsgSenderId: "jdfndjA165464SDJBFDJNSDJFN",
             messages: []
@@ -42,10 +42,10 @@ const initialState = {
             privateChatId: "p3",
             user1Id: "jdfndjA165464SDJBFDJNSDJFN",
             user1Name: "Sanket Gupta",
-            user1Email: "sanketgupta1000@gmail.com",
+            // user1Email: "sanketgupta1000@gmail.com",
             user2Id: "user3",
             user2Name: "Harshpalsinh Zala",
-            user2Email: "abc123@gmail.com",
+            // user2Email: "abc123@gmail.com",
             lastMsg: "Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!",
             lastMsgSenderId: "jdfndjA165464SDJBFDJNSDJFN",
             messages: []
@@ -55,10 +55,10 @@ const initialState = {
             privateChatId: "p4",
             user1Id: "jdfndjA165464SDJBFDJNSDJFN",
             user1Name: "Sanket Gupta",
-            user1Email: "sanketgupta1000@gmail.com",
+            // user1Email: "sanketgupta1000@gmail.com",
             user2Id: "user3",
             user2Name: "Harshpalsinh Zala",
-            user2Email: "abc123@gmail.com",
+            // user2Email: "abc123@gmail.com",
             lastMsg: "Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!",
             lastMsgSenderId: "jdfndjA165464SDJBFDJNSDJFN",
             messages: []
@@ -68,10 +68,10 @@ const initialState = {
             privateChatId: "p5",
             user1Id: "jdfndjA165464SDJBFDJNSDJFN",
             user1Name: "Sanket Gupta",
-            user1Email: "sanketgupta1000@gmail.com",
+            // user1Email: "sanketgupta1000@gmail.com",
             user2Id: "user3",
             user2Name: "Harshpalsinh Zala",
-            user2Email: "abc123@gmail.com",
+            // user2Email: "abc123@gmail.com",
             lastMsg: "Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!",
             lastMsgSenderId: "jdfndjA165464SDJBFDJNSDJFN",
             messages: []
@@ -81,10 +81,10 @@ const initialState = {
             privateChatId: "p6",
             user1Id: "jdfndjA165464SDJBFDJNSDJFN",
             user1Name: "Sanket Gupta",
-            user1Email: "sanketgupta1000@gmail.com",
+            // user1Email: "sanketgupta1000@gmail.com",
             user2Id: "user3",
             user2Name: "Harshpalsinh Zala",
-            user2Email: "abc123@gmail.com",
+            // user2Email: "abc123@gmail.com",
             lastMsg: "Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!Hey there Harshpal!",
             lastMsgSenderId: "jdfndjA165464SDJBFDJNSDJFN",
             messages: []

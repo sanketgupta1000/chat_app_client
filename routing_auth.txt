@@ -1,0 +1,1 @@
+purpose of app: to fetch the user details if any, on app start, and only then let the request proceed
