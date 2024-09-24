@@ -6,7 +6,9 @@ import TabContainer from '../components/ui/TabContainer';
 import TabBar from '../components/ui/TabBar';
 import GroupAvatar from '../components/ui/GroupAvatar';
 
-function AllChatsPane()
+function AllChatsPane({
+    className=""
+})
 {
 
     // user id, and email from redux store
@@ -23,7 +25,7 @@ function AllChatsPane()
 
     return (
 
-        <div className='bg-base-300 h-screen w-full'>
+        <>
 
             {/* to display user's profile */}
             <div className='flex flex-row items-center justify-evenly flex-wrap pt-4'>
@@ -185,7 +187,7 @@ function AllChatsPane()
 
             </div>
 
-        </div>
+        </>
 
     )
 

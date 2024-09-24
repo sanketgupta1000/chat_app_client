@@ -1,30 +1,34 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import Button from '../components/input/Button';
-import { logout } from '../../store/slices';
-
+import AllChatsPane from '../panes/AllChatsPane';
+import { Outlet } from 'react-router-dom';
 
 function HomePage()
 {
 
-    const userName = useSelector(state=>state.user.userName);
-
-    const dispatch = useDispatch();
-
     return (
 
         <>
-            <div>Hi {userName}!</div>
+            
+            <div className='flex w-full flex-column flex-wrap md:flex-row'>
 
-            <Button
-                onClick={()=>
-                {
-                    dispatch(logout());
-                }
-                }
-            >
-                Logout
-            </Button>
+                {/* left side pane */}
+                <div className="bg-base-300 h-screen w-full md:max-w-[38%]">
+                    <AllChatsPane/>
+                </div>
+
+                {/* divider */}
+                <div className="divider divider-horizontal m-0 hidden md:flex"></div>
+
+                {/* right side pane */}
+                <div className="bg-base-300 h-screen w-full md:w-fit md:grow-[2] md:max-w-[59%] relative">
+
+                    {/* right side pane's content will change based on url */}
+                    <Outlet/>
+
+                </div>
+
+            </div>
+
         </>
 
     );

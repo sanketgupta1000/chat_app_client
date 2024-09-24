@@ -28,8 +28,8 @@ function AuthLayout({children, authRequired})
         {
             // auth not required, but logged in
             // redirect to home
-            // navigate(`/home/users/${userId}`);
-            navigate("/testhome");
+            navigate(`/home/users/${userId}`);
+            // navigate("/home/user1");
         }
 
         // set loading to false
