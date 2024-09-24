@@ -1,4 +1,4 @@
-import config, { baseUrl } from "../configs/config";
+import config from "../configs/config";
 import { InvalidCredentialsError, UserNotFoundError } from "../utils/errors/userErrors";
 import { InvalidDataError, NetworkError, UnknownError } from "../utils/errors/sharedErrors";
 import { RequestExistsError, RequestNotFoundError } from "../utils/errors/friendshipRequestErrors";
@@ -14,7 +14,7 @@ class FriendshipRequestService
         try
         {
             response = await fetch(
-                baseUrl + "/api/users/suggestions",
+                config.baseUrl + "/api/users/suggestions",
                 {
                     headers: {
                         "Authorization": `Bearer ${jwt}`
@@ -28,7 +28,7 @@ class FriendshipRequestService
         }
 
         // got the response
-        if(response.status==403)
+        if(response.status==401)
         {
             // token incorrect/expired
             throw new InvalidCredentialsError();
@@ -68,7 +68,7 @@ class FriendshipRequestService
         }
 
         // got the response
-        if(response.status==403)
+        if(response.status==401)
         {
             throw new InvalidCredentialsError();
         }
@@ -118,7 +118,7 @@ class FriendshipRequestService
             throw new NetworkError();
         }
 
-        if(response.status==403)
+        if(response.status==401)
         {
             throw new InvalidCredentialsError();
         }

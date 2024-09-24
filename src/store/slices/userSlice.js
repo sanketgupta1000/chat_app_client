@@ -1,37 +1,37 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// const initialState = {
-
-//     // is the user logged in
-//     isLoggedIn: false,
-//     // the value of jwt, incase logged in
-//     // get from local storage
-//     token: localStorage.getItem("token"),
-//     // user id
-//     userId: null,
-//     // name
-//     userName: null,
-//     // email
-//     userEmail: null
-
-// };
-
-// dummy initial state
 const initialState = {
 
     // is the user logged in
-    isLoggedIn: true,
+    isLoggedIn: false,
     // the value of jwt, incase logged in
     // get from local storage
-    token: "jdndjfdjsdjdsjfsfbjfbdsjhsbf",
+    token: localStorage.getItem("token"),
     // user id
-    userId: "jdfndjA165464SDJBFDJNSDJFN",
+    userId: null,
     // name
-    userName: "Sanket Gupta",
+    userName: null,
     // email
-    userEmail: "sanketgupta1000@gmail.com"
+    userEmail: null
 
 };
+
+// dummy initial state
+// const initialState = {
+
+//     // is the user logged in
+//     isLoggedIn: true,
+//     // the value of jwt, incase logged in
+//     // get from local storage
+//     token: "jdndjfdjsdjdsjfsfbjfbdsjhsbf",
+//     // user id
+//     userId: "jdfndjA165464SDJBFDJNSDJFN",
+//     // name
+//     userName: "Sanket Gupta",
+//     // email
+//     userEmail: "sanketgupta1000@gmail.com"
+
+// };
 
 export const userSlice = createSlice(
     {
@@ -40,6 +40,13 @@ export const userSlice = createSlice(
         reducers: {
 
             // methods to manipulate the user
+
+            // to set token
+            setToken: (state, action)=>
+            {
+                state.token = action.payload.token;
+                localStorage.setItem("token", action.payload.token);
+            },
 
             // to log the user in
             login: (state, action) =>
@@ -72,4 +79,4 @@ export const userSlice = createSlice(
 export default userSlice.reducer;
 
 // to actually use
-export const {login, logout} = userSlice.actions;
+export const {login, logout, setToken} = userSlice.actions;

@@ -26,7 +26,7 @@ class GroupChatService
             throw new NetworkError();
         }
 
-        if(response.status==403)
+        if(response.status==401)
         {
             throw new InvalidCredentialsError();
         }
@@ -65,7 +65,7 @@ class GroupChatService
             throw new NetworkError();
         }
 
-        if(response.status==403)
+        if(response.status==401)
         {
             throw new InvalidCredentialsError();
         }
@@ -107,7 +107,7 @@ class GroupChatService
             throw new NetworkError();
         }
 
-        if(response.status==403)
+        if(response.status==401)
         {
             throw new InvalidCredentialsError();
         }
@@ -154,7 +154,7 @@ class GroupChatService
             throw new NetworkError();
         }
 
-        if(response.status==403)
+        if(response.status==401)
         {
             throw new InvalidCredentialsError();
         }

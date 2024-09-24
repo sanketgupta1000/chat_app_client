@@ -19,14 +19,15 @@ function UserAvatar({
     showRequestActions = false,
     rounded=true,
     isLink = true,
-    to
+    to,
+    className=""
 
 })
 {
 
     const UserCard = (
 
-        <div className={`card card-side flex-wrap bg-base-100 ${rounded?"":"rounded-none"} p-3 justify-between ${isLink?"hover:bg-base-200":""}`}>
+        <div className={`card card-side flex-wrap bg-base-100 ${rounded?"":"rounded-none"} p-3 justify-between ${isLink?"hover:bg-base-200":""} ${className}`}>
 
             {/* user image, name, and email or message */}
             <div className='flex flex-row items-center justify-between'>
@@ -131,7 +132,7 @@ function UserAvatar({
     return (
 
       (isLink?
-        <a href={to?to:`/users/${userId}`}>
+        <a href={to?to:`/home/users/${userId}`}>
 
             {UserCard}
 

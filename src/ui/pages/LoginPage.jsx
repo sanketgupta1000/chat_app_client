@@ -2,6 +2,15 @@ import { useForm } from "react-hook-form";
 import Input from "../components/input/Input";
 import Button from "../components/input/Button";
 import InputError from "../components/input/InputError";
+import SimpleLink from "../components/ui/SimpleLink";
+import { useState } from "react";
+import AuthService from "../../services/authService";
+import { useDispatch } from "react-redux";
+import { login } from "../../store/slices";
+import { InvalidDataError, NetworkError } from "../../utils/errors/sharedErrors";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { setToken } from "../../store/slices/userSlice";
 
 
 function LoginPage() {
@@ -10,11 +19,59 @@ function LoginPage() {
     // errors
     const {errors} = formState;
 
+    const [submitLoading, setSubmitLoading] = useState(false);
 
-    // submit handler, dummy for now
-    // TODO: implement actual
+    const navigate = useNavigate();
+
+    const dispatch = useDispatch();
+
+    // submit handler
     const handleLogin = (data) => {
-        console.log(data);
+        
+        setSubmitLoading(true);
+
+        const authService = new AuthService();
+
+        authService
+        .login(data)
+        .then((token)=>
+        {
+            // got the user
+
+            // set token
+            dispatch(setToken({
+                token: token
+            }));
+        })
+        .catch((err)=>
+        {
+            if(err instanceof NetworkError)
+            {
+                // show toast
+                toast.error("Cannot connect to server, please check your internet connection");
+            }
+            else if(err instanceof InvalidDataError)
+            {
+                toast.error("Invalid inputs, please check your data and try again");
+            }
+            else if(err instanceof UserNotFoundError)
+            {
+                toast.error("User not found, please check your email");
+            }
+            else if(err instanceof InvalidCredentialsError)
+            {
+                toast.error("Invalid credentials");
+            }
+            else
+            {
+                toast.error("An unknown error occured");
+            }
+        })
+        .finally(()=>
+        {
+            setSubmitLoading(false);
+        });
+
     }
 
     // return the form
@@ -61,10 +118,22 @@ function LoginPage() {
 
                         {/* login button */}
                         <Button
+                            loading={submitLoading}
                             type="submit"
                         >
-                            Login
+                            {
+                            submitLoading?
+                            "Logging in..."
+                            :
+                            "Login"
+                            }
                         </Button>
+
+                        <SimpleLink
+                            to={"/auth/signup"}
+                        >
+                            Don't have an account?
+                        </SimpleLink>
 
                     </form>
                 </div>
