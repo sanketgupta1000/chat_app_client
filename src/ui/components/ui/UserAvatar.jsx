@@ -68,8 +68,8 @@ function UserAvatar({
             {
             rating &&
             <div className='mt-2'>
-                <span className='text-sm text-gray-500'>Rating:</span>
-                <span className='text-yellow-500'>{rating}</span>
+                <span className='text-sm text-gray-500'>Rating: </span>
+                <span className='text-yellow-500'>{rating} / 5 ⭐</span>
             </div>
             }
 
