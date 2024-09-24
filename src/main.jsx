@@ -10,6 +10,8 @@ import AuthLayout from './AuthLayout.jsx';
 import SignupPage from './ui/pages/SignupPage.jsx';
 import AuthPage from './ui/pages/AuthPage.jsx';
 import HomePage from './ui/pages/HomePage.jsx';
+import UserProfilePane from './ui/panes/UserProfilePane.jsx';
+import PrivateChatPane from './ui/panes/PrivateChatPane.jsx';
 
 const router = createBrowserRouter(
 
@@ -21,9 +23,23 @@ const router = createBrowserRouter(
         >
 
             <Route
-                path='testhome/'
+                path='home/'
                 element={<AuthLayout authRequired={true}><HomePage/></AuthLayout>}
-            />
+            >
+
+                {/* user profile page */}
+                <Route
+                    path='users/:userId/'
+                    element={<UserProfilePane/>}
+                />
+
+                {/* private chat page */}
+                <Route
+                    path='private-chats/:privateChatIndex/'
+                    element={<PrivateChatPane/>}
+                />
+
+            </Route>
 
             <Route
                 path='auth/'

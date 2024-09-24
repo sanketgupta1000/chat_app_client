@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import AuthService from "./services/authService";
 import { login, setGroups, setPrivateChats, setReceivedRequests } from "./store/slices";
 import { Outlet } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import PrivateChatService from "./services/privateChatService";
 import GroupChatService from "./services/groupChatService";
 import FriendshipRequestService from "./services/friendshipRequestService";
@@ -144,6 +144,7 @@ function App() {
             {
                 console.log(err);
                 // show in a toast
+                toast.error("Failed to fetch data");
             })
             .finally(()=>
             {

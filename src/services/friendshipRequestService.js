@@ -28,7 +28,7 @@ class FriendshipRequestService
         }
 
         // got the response
-        if(response.status==403)
+        if(response.status==401)
         {
             // token incorrect/expired
             throw new InvalidCredentialsError();
@@ -68,7 +68,7 @@ class FriendshipRequestService
         }
 
         // got the response
-        if(response.status==403)
+        if(response.status==401)
         {
             throw new InvalidCredentialsError();
         }
@@ -118,7 +118,7 @@ class FriendshipRequestService
             throw new NetworkError();
         }
 
-        if(response.status==403)
+        if(response.status==401)
         {
             throw new InvalidCredentialsError();
         }

@@ -27,7 +27,7 @@ class PrivateChatService
         }
 
         // got the response
-        if(response.status==403)
+        if(response.status==401)
         {
             throw new InvalidCredentialsError();
         }
@@ -69,7 +69,7 @@ class PrivateChatService
         }
 
         // got the response
-        if(response.status==403)
+        if(response.status==401)
         {
             throw new InvalidCredentialsError();
         }
@@ -119,7 +119,7 @@ class PrivateChatService
         }
 
         // got the response
-        if(response.status==403)
+        if(response.status==401)
         {
             throw new InvalidCredentialsError();
         }
