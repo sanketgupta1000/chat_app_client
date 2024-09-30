@@ -11,7 +11,9 @@ function LoadingSpinner({message})
             message?
             message
             :
-            "Loading..."
+            <div className='hero bg-base-200 min-h-screen'>
+                <span className="loading loading-spinner loading-lg"></span>
+            </div>
             }
 
         </div>
