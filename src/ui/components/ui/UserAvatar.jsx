@@ -1,6 +1,12 @@
 import React from 'react'
 import Button from '../input/Button';
-
+import { useDispatch } from "react-redux";
+import { useSelector } from 'react-redux';
+import { useNavigate } from "react-router-dom";
+import FriendshipRequestService from '../../../services/friendshipRequestService';
+import PrivateChatService from '../../../services/privateChatService';
+import toast from "react-hot-toast";
+import { setPrivateChats } from '../../../store/slices';
 
 // a general component to display user
 // will be used to: display the current user's profile on top of leftsidepane, display the private chats, group members, user's preview as a suggested user , etc
@@ -20,10 +26,57 @@ function UserAvatar({
     rounded=true,
     isLink = true,
     to,
-    className=""
-
+    className="",
+    modalId,
 })
 {
+    const jwt = useSelector(state=>state.user.token);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    function closeModal()
+    {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.close();  // Close the modal
+        }
+    }
+
+    function respondRequest(requestId, response)
+    {
+        const friendshipRequestService = new FriendshipRequestService();
+        const privateChatService = new PrivateChatService();
+        friendshipRequestService.respondToFriendshipRequest({jwt: jwt, requestId: requestId, response: response})
+        .then(() => {
+            closeModal();
+            navigate(`/home/users/${userId}`);
+            if(response)
+            {
+                // Response accepted so getting all chats including new private chat.
+                privateChatService.getAllPrivateChats(jwt).then((privateChats) => {
+                    privateChats = privateChats.map(((chat)=>{
+                        return {
+                            privateChatId: chat.id,
+                            user1Id: chat.user1_id,
+                            user2Id: chat.user2_id,
+                            user1Name: chat.user1_name,
+                            user2Name: chat.user2_name,
+                            lastMsg: chat.last_msg,
+                            lastMsgSenderId: chat.last_msg_sender_id,
+                            messages: []
+                        };
+                    }));
+
+                    console.log(privateChats);
+                    dispatch(setPrivateChats({
+                        privateChats: privateChats
+                    }));
+                });
+                toast.success("Request Accepted !");
+            }
+            else
+                toast.success("Request Rejectd !");
+        })
+    }
 
     const UserCard = (
 
@@ -85,6 +138,8 @@ function UserAvatar({
                         // TODO: use the service there
                         e.stopPropagation();
                         e.preventDefault();
+                        respondRequest(requestId, true);
+                        
                         console.log("Accepting request: "+requestId);
                     }
                     }
@@ -96,6 +151,7 @@ function UserAvatar({
                     {
                         e.stopPropagation();
                         e.preventDefault();
+                        respondRequest(requestId, false);
                         console.log("Rejecting request: "+requestId);
                     }
                     }
@@ -116,7 +172,13 @@ function UserAvatar({
                     {
                         e.stopPropagation();
                         e.preventDefault();
-                        console.log("Sending request: "+userId);
+                        const friendshipRequestService = new FriendshipRequestService();
+                        friendshipRequestService.sendFriendshipRequest({jwt: jwt,receiverId: userId})
+                        .then((res) => {
+                            console.log(res);
+                            closeModal();
+                            toast.success("Request Sent successfully!");
+                        });
                     }
                     }
                 >
@@ -132,11 +194,11 @@ function UserAvatar({
     return (
 
       (isLink?
-        <a href={to?to:`/home/users/${userId}`}>
+        <Link to={to?to:`/home/users/${userId}`}>
 
             {UserCard}
 
-        </a>
+        </Link>
         :
         {UserCard}
       )

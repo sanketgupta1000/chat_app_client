@@ -6,7 +6,7 @@ import TabContainer from '../components/ui/TabContainer';
 import TabBar from '../components/ui/TabBar';
 import GroupAvatar from '../components/ui/GroupAvatar';
 import UserModal from '../components/ui/UserModal';
-
+import FriendshipRequestService from '../../services/friendshipRequestService';
 function AllChatsPane({
     className=""
 })
@@ -14,44 +14,14 @@ function AllChatsPane({
 
     // user id, and email from redux store
     const { userId, userEmail, userName } = useSelector(state => state.user);
-
+    // const suggestedUser = useSelector(state => state.friendshipRequests);
+    const jwt = useSelector(state=>state.user.token);
     // state for tabs
     const [tab, setTab] = useState(1);
 
-    let users = [
-        {
-            id: 1,
-            email: "gohilsumit15@gmail.com",
-            name: "Sumit Gohil",
-        },
-        {
-            id: 2,
-            email: "sanketgupta1000@gmail.com",
-            name: "Sanket Gupta",
-        },
-        {
-            id: 3,
-            email: "darshit1234@gmail.com",
-            name: "Darshit Talsaniya",
-        },
-        {
-            id: 4,
-            email: "devshah1203@gmail.com",
-            name: "Dev Shah",
-        },
-        {
-            id: 5,
-            email: "milan7781@gmail.com",
-            name: "Milan Vadhel",
-        },
-        {
-            id: 6,
-            email: "parth2606@gmail.com",
-            name: "Parth Vasava",
-        }
-    ]
-    // const [dummyUser, setDummyUser] = useState(users);
+    const [suggestedUsers, setSuggestedUsers] = useState([]);
 
+    const [frndRequests, setFrndRequests] = useState([]);
     // private chats
     const privateChats = useSelector(state => state.privateChats.privateChats);
 
@@ -75,9 +45,15 @@ function AllChatsPane({
 
                 <Button
                     onClick={() => {
-                        // setDummyUser(users);
-                        document.getElementById("findUserModal").showModal();
-                    }
+                            const friendshipRequestService = new FriendshipRequestService();
+
+                            friendshipRequestService.getSuggestedUsers(jwt)
+                            .then((users) => 
+                            {
+                                setSuggestedUsers(users);
+                            })
+                            document.getElementById("findUserModal").showModal();
+                        }
                     }
                 >
                     Find New Users
@@ -86,14 +62,22 @@ function AllChatsPane({
                 {/* Friend Suggestions Modal */}
                 <UserModal id="findUserModal" header="Suggested users">
                     {
-                        users.map((user) => (
+                        suggestedUsers.length == 0
+                        ?
+                        <div>
+                            No Users with Matching Interests.
+                        </div>
+                        :
+                        suggestedUsers.map((user) => (
                         <UserAvatar
                             key={user.id}
+                            userId={user.id}
                             name={user.name}
                             imgSrc={"https://placehold.jp/100x100.png"}
                             email={user.email}
                             showSendRequestBtn={true}
-                            rating={4.2}
+                            rating={user.avg_rating}
+                            modalId="findUserModal"
                         />
                         ))
                     }
@@ -170,7 +154,7 @@ function AllChatsPane({
                                         null
                                 }
 
-                                to={`/private-chats/${index}`}
+                                to={`/home/private-chats/${index}`}
 
                             />
                         ))}
@@ -225,7 +209,16 @@ function AllChatsPane({
                 <div className='mt-4 md:mt-4 lg:mt-10 w-fit mx-auto'>
                     {/* button to see received requests */}
                     <Button
-                        onClick={() => document.getElementById('frdReqModal').showModal()
+                        onClick={() => 
+                            {
+                                const friendshipRequestService = new FriendshipRequestService()
+                                friendshipRequestService.getReceivedFriendshipRequests(jwt)
+                                .then((frndReqs) => {
+                                    console.log(frndReqs);
+                                    setFrndRequests(frndReqs);
+                                })
+                                document.getElementById('frdReqModal').showModal()
+                            }
                         }
                     >
                         Received Friendship Requests
@@ -234,14 +227,23 @@ function AllChatsPane({
                     {/* Friend Request Modal */}
                     <UserModal id="frdReqModal" header="Received Requests">
                         {
-                            users.map((user) => (
-                            <UserAvatar
-                                key={user.id}
-                                name={user.name}
-                                imgSrc={"https://placehold.jp/100x100.png"}
-                                email={user.email}
-                                showRequestActions={true}
-                            />
+                            frndRequests.length == 0 
+                            ? 
+                            <div>
+                                No Friend Requeest yet...
+                            </div> 
+                            :
+                            frndRequests.map((reqs) => (
+                                <UserAvatar
+                                    key={reqs.id}
+                                    requestId={reqs.id}
+                                    userId={userId}
+                                    name={reqs.sender_name}
+                                    imgSrc={"https://placehold.jp/100x100.png"}
+                                    email={reqs.sender_email}
+                                    showRequestActions={true}
+                                    modalId="frdReqModal"
+                                />
                             ))
                         }
                     </UserModal>

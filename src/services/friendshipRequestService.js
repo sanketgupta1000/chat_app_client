@@ -169,7 +169,7 @@ class FriendshipRequestService
         {
             throw new RequestNotFoundError((await response.json()).message);
         }
-        else if(response.status!=200)
+        else if(resp.status!=200)
         {
             throw new UnknownError();
         }

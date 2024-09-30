@@ -8,6 +8,7 @@ import AuthService from "../../services/authService";
 import { useDispatch } from "react-redux";
 import { login } from "../../store/slices";
 import { InvalidDataError, NetworkError } from "../../utils/errors/sharedErrors";
+import { InvalidCredentialsError, UserNotFoundError } from "../../utils/errors/userErrors";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { setToken } from "../../store/slices/userSlice";
