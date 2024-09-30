@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import UserAvatar from '../components/ui/UserAvatar';
@@ -6,7 +6,7 @@ import ChatBubble from '../components/ui/ChatBubble';
 import Input from '../components/input/Input';
 import Button from '../components/input/Button';
 import PrivateChatService from '../../services/privateChatService';
-import { addPrivateChatMessage } from '../../store/slices/privateChatsSlice';
+import { addNewerChatMessage, addOlderChatMessage } from '../../store/slices/privateChatsSlice';
 import toast from 'react-hot-toast';
 
 
@@ -34,10 +34,17 @@ function PrivateChatPane()
 
     const dispatch = useDispatch();
 
-    // to fetch older messages when user scrolls up
-    const handleScroll = (e)=>
+    //  ref for new message textarea
+    const newMessageRef = useRef(null);
+
+    // ref for chat bubbles container
+    const chatBubblesRef = useRef(null);
+
+    // function to fetch messages
+    const fetchMessages = useCallback(()=>
     {
-        if((!isFetching.current) && (e.target.scrollTop === 0))
+        console.log("fetchMessages called. isFetching.current: "+isFetching.current);
+        if((!isFetching.current))
         {
             // start fetching
             isFetching.current = true;
@@ -56,7 +63,7 @@ function PrivateChatPane()
                 messages.forEach((m)=>
                 {
                     dispatch(
-                        addPrivateChatMessage({
+                        addOlderChatMessage({
                             index: privateChatIndex,
                             message: {
                                 messageId: m.id,
@@ -82,7 +89,72 @@ function PrivateChatPane()
                 isFetching.current = false;
             });
         }
+    }, [isFetching, jwt, privateChat, privateChatIndex, dispatch, addOlderChatMessage]);
+
+    // to fetch older messages when user scrolls up
+    const handleScroll = (e)=>
+    {
+        if(Math.abs(e.target.clientHeight - e.target.scrollTop - e.target.scrollHeight) <=1 )
+        {
+            fetchMessages();
+        }
     }
+
+    // useeffect to fetch after first render if no messages in privateChat.messages
+    useEffect(()=>
+    {
+        if(privateChat.messages.length===0)
+        {
+            fetchMessages();
+        }
+    }, [privateChatIndex]);
+
+    // to send a new message
+    const sendMessage =useCallback(()=>
+    {
+        const message = newMessageRef.current.value;
+        if(message.length>0)
+        {
+
+            // clear the textarea
+            newMessageRef.current.value = "";
+
+            const privateChatService = new PrivateChatService();
+            privateChatService
+            .sendMessage({
+                jwt: jwt,
+                privateChatId: privateChat.privateChatId,
+                message: message
+            })
+            .then((message)=>
+            {
+                dispatch(
+                    addNewerChatMessage({
+                        index: privateChatIndex,
+                        message: {
+                            messageId: message.id,
+                            content: message.message,
+                            senderId: message.sender_id,
+                            sentDateTime: message.sent_date_time,
+                            status: message.status,
+                            statusDateTime: message.status_time
+                        }
+                    })
+                );
+                
+                // scroll to bottom
+                // chatBubblesRef.current.scrollTop = 0;
+            })
+            .catch((e)=>
+            {
+                console.log(e);
+                // restore textarea
+                newMessageRef.current.value = message;
+                // show in toast
+                toast.error("Failed to send message");
+            });
+        }
+    },[newMessageRef, jwt, privateChat, privateChatIndex, dispatch, addNewerChatMessage]);
 
     return (
 
@@ -98,7 +170,7 @@ function PrivateChatPane()
             />
 
             {/* chatbubbles */}
-            <div className="my-14 h-[90vh] overflow-scroll flex flex-col-reverse" onScroll={handleScroll}>
+            <div className="my-20 h-[75vh] overflow-scroll flex flex-col-reverse" onScroll={handleScroll} ref={chatBubblesRef}>
 
                 {privateChat.messages.map((message)=>
                 {
@@ -119,9 +191,9 @@ function PrivateChatPane()
                             messageDate={msgDateString}
                             messageTime={msgTimeString}
                             direction={message.senderId === currentUserId ? 'right' : 'left'}
-                            status={message.status}
-                            statusDate={statusDateString}
-                            statusTime={statusTimeString}
+                            status={(message.senderId===currentUserId)?message.status:null}
+                            statusDate={(message.senderId===currentUserId)?statusDateString:null}
+                            statusTime={(message.senderId===currentUserId)?statusTimeString:null}
 
                         />
 
@@ -137,14 +209,11 @@ function PrivateChatPane()
                     type="textarea"
                     placeholder="Type a message..."
                     className="w-[90%]"
+                    ref={newMessageRef}
                 />
 
                 <Button
-                    onClick={()=>
-                        {
-                            console.log("Send button clicked");
-                        }
-                    }
+                    onClick={sendMessage}
                 >
                     Send
                 </Button>

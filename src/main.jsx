@@ -12,6 +12,7 @@ import AuthPage from './ui/pages/AuthPage.jsx';
 import HomePage from './ui/pages/HomePage.jsx';
 import UserProfilePane from './ui/panes/UserProfilePane.jsx';
 import PrivateChatPane from './ui/panes/PrivateChatPane.jsx';
+import SocketContextProvider from './contexts/SocketContextProvider.jsx';
 
 const router = createBrowserRouter(
 
@@ -78,11 +79,12 @@ createRoot(document.getElementById('root')).render(
 
     <Provider store={store}>
 
-        <RouterProvider router={router}>
+        <SocketContextProvider>
 
-            <App />
+            <RouterProvider router={router} />
+            
+        </SocketContextProvider>
 
-        </RouterProvider>
 
     </Provider>
 
