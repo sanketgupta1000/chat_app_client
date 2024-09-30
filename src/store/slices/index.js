@@ -4,7 +4,7 @@ import friendshipRequestsReducer from "./friendshipRequestsSlice";
 import { setGroups, addGroup, addGroupMessage } from "./groupsSlice";
 import groupsReducer from "./groupsSlice";
 
-import { setPrivateChats, addPrivateChat, addPrivateChatMessage } from "./privateChatsSlice";
+import { setPrivateChats, addPrivateChat, addNewerChatMessage, addOlderChatMessage } from "./privateChatsSlice";
 import privateChatsReducer from "./privateChatsSlice";
 
 import { login, logout } from "./userSlice";
@@ -21,7 +21,8 @@ export {
     groupsReducer,
     setPrivateChats,
     addPrivateChat,
-    addPrivateChatMessage,
+    addNewerChatMessage,
+    addOlderChatMessage,
     privateChatsReducer,
     login,
     logout,

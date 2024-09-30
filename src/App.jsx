@@ -3,21 +3,27 @@ import LoadingSpinner from "./ui/components/ui/LoadingSpinner"
 import AllChatsPane from "./ui/panes/AllChatsPane"
 import { useDispatch, useSelector } from "react-redux";
 import AuthService from "./services/authService";
-import { login, setGroups, setPrivateChats, setReceivedRequests } from "./store/slices";
+import { addNewerChatMessage, login, logout, setGroups, setPrivateChats, setReceivedRequests } from "./store/slices";
 import { Outlet } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import PrivateChatService from "./services/privateChatService";
 import GroupChatService from "./services/groupChatService";
 import FriendshipRequestService from "./services/friendshipRequestService";
+import useSocket from "./hooks/useSocket";
 
 function App() {
 
     const [isLoading, setLoading] = useState(true);
 
     // get jwt
-    const token = useSelector(state=>state.user.token);
+    const {token, isLoggedIn} = useSelector(state=>state.user);
 // console.log(token);
     const dispatch = useDispatch();
+
+    // socket
+    const {connectSocket, socketOn, removeListeners, isSocketConnected, disconnectSocket} = useSocket();
+
+    const privateChats = useSelector(state=>state.privateChats.privateChats);
 
     // fetch user after first render
     useEffect(()=>
@@ -165,10 +171,91 @@ function App() {
             dispatch(setReceivedRequests({
                 receivedFriendshipRequests: []
             }));
+            dispatch(logout());
             setLoading(false);
         }
 
     }, [token]);
+
+
+    // another useEffect to connect/disconnect socket on login and logout
+    useEffect(()=>
+    {
+
+        if(isLoggedIn)
+        {
+            // connect socket
+            connectSocket({jwt: token});
+        }
+        else
+        {
+            // disconnect socket
+            disconnectSocket();
+        }
+
+        // cleanup
+        return ()=>
+        {
+            disconnectSocket();
+        }
+
+    }, [isLoggedIn]);
+
+    // useEffect to add or remove event listeners when socket connection changes
+    useEffect(()=>
+    {
+
+        if(isSocketConnected)
+        {
+            // add event listeners
+            socketOn("new private chat message", (privateChatMsg)=>
+            {
+                console.log("new private chat message received from: "+privateChatMsg.sender_id);
+                console.log(privateChatMsg);
+                // find index of the private chat
+                console.log(privateChats);
+                const privateChatIndex = privateChats.findIndex((chat)=>
+                {
+                    console.log("chat.privateChatId: "+chat.privateChatId);
+                    return chat.privateChatId == privateChatMsg.private_chat_id;
+                });
+
+                console.log("privateChatIndex: "+privateChatIndex);
+
+                if(privateChatIndex != -1)
+                {
+                    console.log("private chat found");
+                    // private chat found
+                    // add message
+                    dispatch(addNewerChatMessage({
+                        index: privateChatIndex,
+                        message: {
+                            messageId: privateChatMsg.id,
+                            content: privateChatMsg.message,
+                            senderId: privateChatMsg.sender_id,
+                            sentDateTime: privateChatMsg.sent_date_time,
+                            status: privateChatMsg.status,
+                            statusDateTime: privateChatMsg.status_time
+                        }
+                    }));
+                }
+            });
+        }
+        else
+        {
+            // remove event listeners
+            removeListeners("new private chat message");
+        }
+
+        //  cleanup
+        return ()=>
+        {
+            removeListeners("new private chat message");
+        }
+
+    }, [isSocketConnected, privateChats]);
+
+
 
     return (
         

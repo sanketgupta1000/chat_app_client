@@ -98,23 +98,18 @@ class PrivateChatService
         try
         {
             response = await fetch(
-                config.baseUrl + '/api/private-chats',
+                config.baseUrl + `/api/private-chats/${privateChatId}?offset=${offset}&limit=${limit}`,
                 {
                     method: "GET",
                     headers: {
-                        "Content-Type": "application/json",
                         "Authorization": `Bearer ${jwt}`
-                    },
-                    body: JSON.stringify({
-                        private_chat_id: privateChatId,
-                        offset: offset,
-                        limit: limit
-                    })
+                    }
                 }
             );
         }
         catch(e)
         {
+            console.log(e);
             throw new NetworkError();
         }
 

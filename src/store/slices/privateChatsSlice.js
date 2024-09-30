@@ -115,10 +115,19 @@ const privateChatsSlice = createSlice({
             state.privateChats.unshift(action.payload.privateChat);
         },
 
-        // method to add a new message in a private chat by index
-        addPrivateChatMessage: (state, action)=>
+        // method to add older message in a private chat by index
+        addOlderChatMessage: (state, action)=>
         {
             state.privateChats[action.payload.index].messages.push(action.payload.message);
+        },
+
+        // method to add newer message in a private chat by index
+        addNewerChatMessage: (state, action)=>
+        {
+            state.privateChats[action.payload.index].messages.unshift(action.payload.message);
+            // update last message
+            state.privateChats[action.payload.index].lastMsg = action.payload.message.content;
+            state.privateChats[action.payload.index].lastMsgSenderId = action.payload.message.senderId;
         }
 
     }
@@ -126,4 +135,4 @@ const privateChatsSlice = createSlice({
 
 export default privateChatsSlice.reducer;
 
-export const {setPrivateChats, addPrivateChat, addPrivateChatMessage} = privateChatsSlice.actions;
+export const {setPrivateChats, addPrivateChat, addNewerChatMessage, addOlderChatMessage} = privateChatsSlice.actions;
