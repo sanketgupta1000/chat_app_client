@@ -1,7 +1,7 @@
 import { setReceivedRequests, addReceivedRequest, removeReceivedRequest } from "./friendshipRequestsSlice"
 import friendshipRequestsReducer from "./friendshipRequestsSlice";
 
-import { setGroups, addGroup, addGroupMessage } from "./groupsSlice";
+import { setGroups, addGroup, addGroupMessage, addOlderGroupChatMessage, addNewerGroupChatMessage } from "./groupsSlice";
 import groupsReducer from "./groupsSlice";
 
 import { setPrivateChats, addPrivateChat, addNewerChatMessage, addOlderChatMessage } from "./privateChatsSlice";
@@ -18,6 +18,8 @@ export {
     setGroups,
     addGroup,
     addGroupMessage,
+    addOlderGroupChatMessage,
+    addNewerGroupChatMessage,
     groupsReducer,
     setPrivateChats,
     addPrivateChat,

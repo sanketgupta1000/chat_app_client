@@ -5,9 +5,15 @@ function AuthPage() {
     return (
         
         <div>
-            <div>Header goes here</div>
+            <div className="navbar bg-primary text-primary-content">
+                <button className="btn btn-ghost text-xl">ChatBuddies</button>
+            </div>
             <Outlet/>
-            <div>Footer goes here</div>
+            <footer className="footer footer-center bg-primary text-primary-content p-4">
+                <aside>
+                    <p>Copyright © {new Date().getFullYear()} - All right reserved by ChatBuddies</p>
+                </aside>
+            </footer>
         </div>
 
     )

@@ -39,7 +39,7 @@ class GroupChatService
     }
 
     // method to create a group chat
-    async createGroupChat({jwt, name, description, memberIds})
+    async createGroupChat({jwt, name, description, memberIds, adminId, adminName})
     {
         let response;
         try
@@ -55,7 +55,9 @@ class GroupChatService
                     body: JSON.stringify({
                         group_name: name,
                         group_description: description,
-                        members: memberIds
+                        members: memberIds,
+                        admin_id: adminId,
+                        admin_name: adminName
                     })
                 }
             );
@@ -104,6 +106,7 @@ class GroupChatService
         }
         catch(e)
         {
+            console.log("error from service " + e);
             throw new NetworkError();
         }
 
@@ -123,7 +126,7 @@ class GroupChatService
         {
             throw new UnknownError();
         }
-
+        console.log(response);
         return (await response.json()).group_chat;
     }
 
@@ -134,23 +137,19 @@ class GroupChatService
         try
         {
             response = await fetch(
-                config.baseUrl + "/api/groups",
+                config.baseUrl + `/api/groups/${groupId}?offset=${offset}&limit=${limit}`,
                 {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${jwt}`
-                    },
-                    body: JSON.stringify({
-                        group_id: groupId,
-                        offset: offset,
-                        limit: limit
-                    })
+                    }
                 }
             );
         }
         catch(e)
         {
+            console.log("error from service " + e);
             throw new NetworkError();
         }
 
