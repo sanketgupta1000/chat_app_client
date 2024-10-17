@@ -13,6 +13,7 @@ import HomePage from './ui/pages/HomePage.jsx';
 import UserProfilePane from './ui/panes/UserProfilePane.jsx';
 import PrivateChatPane from './ui/panes/PrivateChatPane.jsx';
 import SocketContextProvider from './contexts/SocketContextProvider.jsx';
+import GroupChatPane from './ui/panes/GroupChatPane.jsx';
 
 const router = createBrowserRouter(
 
@@ -40,6 +41,11 @@ const router = createBrowserRouter(
                     element={<PrivateChatPane/>}
                 />
 
+                {/* group chat page */}
+                <Route
+                    path='group-chats/:groupChatIndex/'
+                    element={<GroupChatPane/>}
+                />
             </Route>
 
             <Route

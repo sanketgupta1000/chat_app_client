@@ -32,6 +32,21 @@ const groupSlice = createSlice(
             addGroupMessage: (state, action)=>
             {
                 state.groups[action.payload.index].messages.unshift(action.payload.message);
+            },
+
+            // method to add older message in a group chat by index
+            addOlderGroupChatMessage: (state, action)=>
+            {
+                state.groups[action.payload.index].messages.push(action.payload.message);
+            },
+
+            // method to add newer message in a private chat by index
+            addNewerGroupChatMessage: (state, action)=>
+            {
+                state.groups[action.payload.index].messages.unshift(action.payload.message);
+                // update last message
+                state.groups[action.payload.index].lastMsg = action.payload.message.content;
+                state.groups[action.payload.index].lastMsgSenderId = action.payload.message.senderId;
             }
 
         }
@@ -40,4 +55,4 @@ const groupSlice = createSlice(
 
 export default groupSlice.reducer;
 
-export const {setGroups, addGroup, addGroupMessage} = groupSlice.actions;
+export const {setGroups, addGroup, addGroupMessage, addOlderGroupChatMessage, addNewerGroupChatMessage} = groupSlice.actions;

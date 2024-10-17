@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import UserAvatar from '../components/ui/UserAvatar';
 import { useSelector } from 'react-redux';
 import Button from '../components/input/Button';
@@ -7,15 +7,25 @@ import TabBar from '../components/ui/TabBar';
 import GroupAvatar from '../components/ui/GroupAvatar';
 import UserModal from '../components/ui/UserModal';
 import FriendshipRequestService from '../../services/friendshipRequestService';
+import CheckBox from '../components/input/CheckBox';
+import Input from '../components/input/Input';
+import { Controller, useFieldArray, useForm } from "react-hook-form";
+import InputError from "../components/input/InputError";
+import GroupChatService from '../../services/groupChatService';
+import { NetworkError, UnknownError } from "../../utils/errors/sharedErrors";
+import { InvalidCredentialsError } from "../../utils/errors/userErrors";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { addGroup } from '../../store/slices';
+
 function AllChatsPane({
-    className=""
-})
-{
+    className = ""
+}) {
 
     // user id, and email from redux store
     const { userId, userEmail, userName } = useSelector(state => state.user);
     // const suggestedUser = useSelector(state => state.friendshipRequests);
-    const jwt = useSelector(state=>state.user.token);
+    const jwt = useSelector(state => state.user.token);
     // state for tabs
     const [tab, setTab] = useState(1);
 
@@ -27,6 +37,65 @@ function AllChatsPane({
 
     // groups
     const groups = useSelector(state => state.groups.groups);
+
+    // react hook form
+    const { register, handleSubmit, control, formState } = useForm();
+    // errors
+    const { errors } = formState;
+
+    const dispatch = useDispatch();
+
+    useEffect(() => 
+    {
+        // Trigger UI update when groups state changes
+    }, [groups]);
+
+    const handleCreateGroup = (data) => {
+        const memberIds = []
+        // console.log(data);
+
+        data.group.forEach((m) => {
+            if(m.value == true)
+            {
+                memberIds.push(m.memberId);
+            }
+        });
+        const groupChatService = new GroupChatService();
+        groupChatService.createGroupChat({
+            jwt: jwt,
+            name: data.group_name,
+            description: data.description,
+            memberIds: memberIds,
+            adminId: userId,
+            adminName: userName
+        })
+        .then((group) => {
+            
+            dispatch(addGroup({
+                group: group
+            }))
+            toast.success("Group created successfully!");
+        })
+        .catch((err) => 
+        {
+            if(err instanceof NetworkError)
+            {
+                toast.error("Failed to connect to server, please check your network connection and try again.");
+            }
+            else if(err instanceof InvalidCredentialsError)
+            {
+                toast.error("Invalid data");
+            }
+            else if(err instanceof UnknownError)
+            {
+                toast.error("An unknown error occured, please try again.")
+            }
+        })
+        .finally(() => 
+        {
+            document.getElementById("createGroup").close();
+        })
+    }
 
     return (
 
@@ -45,15 +114,14 @@ function AllChatsPane({
 
                 <Button
                     onClick={() => {
-                            const friendshipRequestService = new FriendshipRequestService();
+                        const friendshipRequestService = new FriendshipRequestService();
 
-                            friendshipRequestService.getSuggestedUsers(jwt)
-                            .then((users) => 
-                            {
+                        friendshipRequestService.getSuggestedUsers(jwt)
+                            .then((users) => {
                                 setSuggestedUsers(users);
                             })
-                            document.getElementById("findUserModal").showModal();
-                        }
+                        document.getElementById("findUserModal").showModal();
+                    }
                     }
                 >
                     Find New Users
@@ -63,23 +131,23 @@ function AllChatsPane({
                 <UserModal id="findUserModal" header="Suggested users">
                     {
                         suggestedUsers.length == 0
-                        ?
-                        <div>
-                            No Users with Matching Interests.
-                        </div>
-                        :
-                        suggestedUsers.map((user) => (
-                        <UserAvatar
-                            key={user.id}
-                            userId={user.id}
-                            name={user.name}
-                            imgSrc={"https://placehold.jp/100x100.png"}
-                            email={user.email}
-                            showSendRequestBtn={true}
-                            rating={user.avg_rating}
-                            modalId="findUserModal"
-                        />
-                        ))
+                            ?
+                            <div>
+                                No Users with Matching Interests.
+                            </div>
+                            :
+                            suggestedUsers.map((user) => (
+                                <UserAvatar
+                                    key={user.id}
+                                    userId={user.id}
+                                    name={user.name}
+                                    imgSrc={"https://placehold.jp/100x100.png"}
+                                    email={user.email}
+                                    showSendRequestBtn={true}
+                                    rating={user.avg_rating}
+                                    modalId="findUserModal"
+                                />
+                            ))
                     }
                 </UserModal>
             </div>
@@ -198,7 +266,7 @@ function AllChatsPane({
 
                                 memberNames={group.members.map((m) => m.memberName)}
 
-                                to={`/group-chats/${index}`}
+                                to={`/home/group-chats/${index}`}
 
                             />
                         ))}
@@ -206,45 +274,128 @@ function AllChatsPane({
                     </div>
                 }
 
-                <div className='mt-4 md:mt-4 lg:mt-10 w-fit mx-auto'>
+                <div className='flex flex-row items-center justify-evenly flex-wrap pt-4'>
                     {/* button to see received requests */}
                     <Button
-                        onClick={() => 
-                            {
-                                const friendshipRequestService = new FriendshipRequestService()
-                                friendshipRequestService.getReceivedFriendshipRequests(jwt)
+                        onClick={() => {
+                            const friendshipRequestService = new FriendshipRequestService()
+                            friendshipRequestService.getReceivedFriendshipRequests(jwt)
                                 .then((frndReqs) => {
                                     console.log(frndReqs);
                                     setFrndRequests(frndReqs);
                                 })
-                                document.getElementById('frdReqModal').showModal()
-                            }
-                        }
+                            document.getElementById('frdReqModal').showModal()
+                        }}
                     >
                         Received Friendship Requests
                     </Button>
-                    
+
                     {/* Friend Request Modal */}
                     <UserModal id="frdReqModal" header="Received Requests">
                         {
-                            frndRequests.length == 0 
-                            ? 
-                            <div>
-                                No Friend Requeest yet...
-                            </div> 
-                            :
-                            frndRequests.map((reqs) => (
-                                <UserAvatar
-                                    key={reqs.id}
-                                    requestId={reqs.id}
-                                    userId={userId}
-                                    name={reqs.sender_name}
-                                    imgSrc={"https://placehold.jp/100x100.png"}
-                                    email={reqs.sender_email}
-                                    showRequestActions={true}
-                                    modalId="frdReqModal"
-                                />
-                            ))
+                            frndRequests.length == 0
+                                ?
+                                <div>
+                                    No Friend Requeest yet...
+                                </div>
+                                :
+                                frndRequests.map((reqs) => (
+                                    <UserAvatar
+                                        key={reqs.id}
+                                        requestId={reqs.id}
+                                        userId={userId}
+                                        name={reqs.sender_name}
+                                        imgSrc={"https://placehold.jp/100x100.png"}
+                                        email={reqs.sender_email}
+                                        showRequestActions={true}
+                                        modalId="frdReqModal"
+                                    />
+                                ))
+                        }
+                    </UserModal>
+
+                    {/* Create group button */}
+                    <Button
+                        onClick={() => {
+                            document.getElementById('createGroup').showModal();
+                            // console.log(privateChats);
+                        }
+                        }
+                    >
+                        Create Group
+                    </Button>
+
+                    {/* Friend list modal to create group */}
+                    <UserModal id="createGroup" header="Select Group members">
+                        {
+                            <form className="card-body" onSubmit={handleSubmit(handleCreateGroup)}>
+                                <Input
+                                    label="Group Name"
+                                    type="text"
+                                    placeholder="Group Name"
+                                    {...register("group_name", {
+                                        required: true,
+                                        minLength: 5
+                                    })}
+                                ></Input>
+                                {errors.group_name && <InputError>Please enter a name of at least 5 characters</InputError>}
+
+                                <Input
+                                    label="Description"
+                                    type="textarea"
+                                    placeholder="Description"
+                                    {...register("description", {
+                                        required: true,
+                                        minLength: 10
+                                    })}
+                                ></Input>
+                                {errors.description && <InputError>Please enter a description of at least 10 characters</InputError>}
+
+                                {
+                                    <Controller
+                                        control={control}
+                                        name="group"
+                                        defaultValue={privateChats.map((p) => ({ memberId: p.user1Id == userId ? p.user2Id : p.user1Id, value: false }))} // Initialize value as an array with 'false' for each private chat
+                                        rules={{
+                                            validate: {
+                                                required: (value) =>
+                                                    value.some((privateChat) => privateChat.value) || "Please select at least one group member."
+                                            }
+                                        }}
+                                        render={({ field: { onChange, value = [] } }) => (  // Ensure value is an array (default empty array)
+                                            <>
+                                                {privateChats.map((privateChat, index) => (
+                                                    <div key={privateChat.id}>
+                                                        <CheckBox
+                                                            label={
+                                                                privateChat.user1Id == userId
+                                                                    ?
+                                                                    privateChat.user2Name
+                                                                    :
+                                                                    privateChat.user1Name
+                                                            }
+                                                            checked={value[index]?.value || false}  // Safely access value[index]
+                                                            onChange={(e) => {
+                                                                const newMember = [...value];
+                                                                newMember[index] = {memberId: privateChat.user1Id == userId ? privateChat.user2Id : privateChat.user1Id, value: e.target.checked };  // Ensure newMember[index] is an object
+                                                                onChange(newMember);
+                                                            }}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </>
+                                        )}
+                                    />
+                                }
+                                {
+                                    errors.group && <InputError>Please select at least one group member</InputError>
+                                }
+                                <Button
+                                    type='submit'
+                                >
+                                    Create Group
+                                </Button>
+                            </form>
                         }
                     </UserModal>
                 </div>

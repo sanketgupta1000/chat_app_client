@@ -2,7 +2,7 @@ import React from 'react'
 import Button from '../input/Button';
 import { useDispatch } from "react-redux";
 import { useSelector } from 'react-redux';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import FriendshipRequestService from '../../../services/friendshipRequestService';
 import PrivateChatService from '../../../services/privateChatService';
 import toast from "react-hot-toast";

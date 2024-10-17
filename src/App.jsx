@@ -3,7 +3,7 @@ import LoadingSpinner from "./ui/components/ui/LoadingSpinner"
 import AllChatsPane from "./ui/panes/AllChatsPane"
 import { useDispatch, useSelector } from "react-redux";
 import AuthService from "./services/authService";
-import { addNewerChatMessage, login, logout, setGroups, setPrivateChats, setReceivedRequests } from "./store/slices";
+import { addNewerChatMessage, addNewerGroupChatMessage, login, logout, setGroups, setPrivateChats, setReceivedRequests } from "./store/slices";
 import { Outlet } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import PrivateChatService from "./services/privateChatService";
@@ -25,6 +25,7 @@ function App() {
 
     const privateChats = useSelector(state=>state.privateChats.privateChats);
 
+    const groups = useSelector(state => state.groups.groups);
     // fetch user after first render
     useEffect(()=>
     {
@@ -240,20 +241,51 @@ function App() {
                     }));
                 }
             });
+
+            socketOn("new group message", (newGroupChat) =>
+            {
+                console.log("new group chat message receieved from: " + newGroupChat.sender_id);
+                
+                console.log(groups);
+
+                const groupChatIndex = groups.findIndex((group) =>
+                {
+                    return group.groupId == newGroupChat.group_id;
+                });
+
+                console.log("groupChatIndex: " + groupChatIndex);
+
+                if(groupChatIndex != -1)
+                {
+
+                    dispatch(addNewerGroupChatMessage({
+                        index: groupChatIndex,
+                        message: {
+                            messageId: newGroupChat.id,
+                            content: newGroupChat.message,
+                            senderId: newGroupChat.sender_id,
+                            sentDateTime: newGroupChat.sent_date_time,
+                            senderName: newGroupChat.sender_name
+                        }
+                    }));
+                }
+            });
         }
         else
         {
             // remove event listeners
             removeListeners("new private chat message");
+            removeListeners("new group message");
         }
 
         //  cleanup
         return ()=>
         {
             removeListeners("new private chat message");
+            removeListeners("new group message");
         }
 
-    }, [isSocketConnected, privateChats]);
+    }, [isSocketConnected, privateChats, groups]);
 
 
 
