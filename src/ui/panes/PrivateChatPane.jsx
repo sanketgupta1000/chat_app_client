@@ -103,7 +103,7 @@ function PrivateChatPane()
     // useeffect to fetch after first render if no messages in privateChat.messages
     useEffect(()=>
     {
-        if(privateChat.messages.length===0)
+        if(privateChat.messages.length<10)
         {
             fetchMessages();
         }
@@ -170,7 +170,7 @@ function PrivateChatPane()
             />
 
             {/* chatbubbles */}
-            <div className="my-20 h-[75vh] overflow-scroll flex flex-col-reverse" onScroll={handleScroll} ref={chatBubblesRef}>
+            <div className="mt-[88px] mb-[96px] overflow-scroll flex flex-col-reverse" style={{ height: 'calc(100vh - 184px)' }} onScroll={handleScroll} ref={chatBubblesRef}>
 
                 {privateChat.messages.map((message)=>
                 {

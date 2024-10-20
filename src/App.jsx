@@ -3,7 +3,7 @@ import LoadingSpinner from "./ui/components/ui/LoadingSpinner"
 import AllChatsPane from "./ui/panes/AllChatsPane"
 import { useDispatch, useSelector } from "react-redux";
 import AuthService from "./services/authService";
-import { addNewerChatMessage, addNewerGroupChatMessage, login, logout, setGroups, setPrivateChats, setReceivedRequests } from "./store/slices";
+import { addGroup, addNewerChatMessage, addNewerGroupChatMessage, addPrivateChat, addReceivedRequest, login, logout, setGroups, setPrivateChats, setReceivedRequests } from "./store/slices";
 import { Outlet } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import PrivateChatService from "./services/privateChatService";
@@ -29,6 +29,8 @@ function App() {
     // fetch user after first render
     useEffect(()=>
     {
+
+        setLoading(true);
 
         if(token)
         {
@@ -209,6 +211,46 @@ function App() {
         if(isSocketConnected)
         {
             // add event listeners
+
+            // whenever a friendship request comes, add it to store
+            socketOn("new friendship request", ({request})=>
+            {
+                console.log("new friendship request received from: "+request.sender_id);
+                dispatch(addReceivedRequest({
+                    receivedRequest: {
+                        requestId: request.id,
+                        senderId: request.sender_id,
+                        senderName: request.sender_name,
+                        senderEmail: request.sender_email,
+                        matchingInterests: request.matching_interests.map((mi)=>
+                            {
+                                return {
+                                    interestId: mi.id,
+                                    interestName: mi.name
+                                };
+                            }),
+                        rating: request.sender_avg_rating
+                    }
+                }));
+            });
+
+            // whenever a new private chat is created (new friend), add it to store
+            socketOn("new private chat", (privateChat)=>
+            {
+                dispatch(addPrivateChat({
+                    privateChat: {
+                        privateChatId: privateChat.id,
+                        user1Id: privateChat.user1_id,
+                        user1Name: privateChat.user1_name,
+                        user2Id: privateChat.user2_id,
+                        user2Name: privateChat.user2_name,
+                        lastMsgSenderId: privateChat.last_msg_sender_id,
+                        lastMsg: privateChat.last_msg,
+                        messages: []
+                    }
+                }));
+            });
+
             socketOn("new private chat message", (privateChatMsg)=>
             {
                 console.log("new private chat message received from: "+privateChatMsg.sender_id);
@@ -240,6 +282,31 @@ function App() {
                         }
                     }));
                 }
+            });
+
+            // whenever a new group is created, add it to store
+            socketOn("new group", (newGroup)=>
+            {
+                console.log("new group created: "+newGroup.group_name);
+                dispatch(addGroup({
+                    group: {
+                        groupId: newGroup.id,
+                        groupName: newGroup.group_name,
+                        groupImgSrc: "https://placehold.jp/100x100.png",
+                        groupDescription: newGroup.group_description,
+                        adminId: newGroup.admin_id,
+                        lastMsg: newGroup.last_msg,
+                        lastMsgSenderId: newGroup.last_msg_sender_id,
+                        messages: [],
+                        members: newGroup.members.map((member)=>
+                        {
+                            return {
+                                memberId: member.id,
+                                memberName: member.name
+                            };
+                        })
+                    }
+                }));
             });
 
             socketOn("new group message", (newGroupChat) =>
@@ -274,14 +341,20 @@ function App() {
         else
         {
             // remove event listeners
+            removeListeners("new friendship request");
+            removeListeners("new private chat");
             removeListeners("new private chat message");
+            removeListeners("new group");
             removeListeners("new group message");
         }
 
         //  cleanup
         return ()=>
         {
+            removeListeners("new friendship request");
+            removeListeners("new private chat");
             removeListeners("new private chat message");
+            removeListeners("new group");
             removeListeners("new group message");
         }
 

@@ -31,7 +31,11 @@ function AllChatsPane({
 
     const [suggestedUsers, setSuggestedUsers] = useState([]);
 
-    const [frndRequests, setFrndRequests] = useState([]);
+    const [findUserBtnLoading, setFindUserBtnLoading] = useState(false);
+
+    // friendship requests from redux store
+    const receivedFriendshipRequests = useSelector(state=>state.friendshipRequests.receivedFriendshipRequests);
+    
     // private chats
     const privateChats = useSelector(state => state.privateChats.privateChats);
 
@@ -72,8 +76,21 @@ function AllChatsPane({
         .then((group) => {
             
             dispatch(addGroup({
-                group: group
-            }))
+                group: {
+                    groupId: group.id,
+                    groupName: group.group_name,
+                    groupImgSrc: "https://placehold.jp/100x100.png",
+                    groupDescription: group.group_description,
+                    adminId: group.admin_id,
+                    lastMsg: group.last_msg,
+                    lastMsgSenderId: group.last_msg_sender_id,
+                    messages: [],
+                    members: group.members.map((m)=>
+                        {
+                            return {memberId: m.id, memberName: m.name};
+                        })
+                }
+            }));
             toast.success("Group created successfully!");
         })
         .catch((err) => 
@@ -113,18 +130,33 @@ function AllChatsPane({
                 />
 
                 <Button
+                    loading={findUserBtnLoading}
                     onClick={() => {
+                        setFindUserBtnLoading(true);
                         const friendshipRequestService = new FriendshipRequestService();
 
                         friendshipRequestService.getSuggestedUsers(jwt)
                             .then((users) => {
                                 setSuggestedUsers(users);
+                                document.getElementById("findUserModal").showModal();
                             })
-                        document.getElementById("findUserModal").showModal();
+                            .catch((error)=>
+                            {
+                                toast.error("Failed to find users!");
+                            })
+                            .finally(()=>
+                            {
+                                setFindUserBtnLoading(false);
+                            })
                     }
                     }
                 >
-                    Find New Users
+                    {findUserBtnLoading
+                    ?
+                    "Finding users"
+                    :
+                    "Find New Users"
+                    }
                 </Button>
 
                 {/* Friend Suggestions Modal */}
@@ -178,7 +210,7 @@ function AllChatsPane({
                 {
                     tab == 1 &&
 
-                    <div className='rounded-md overflow-scroll max-h-[55vh]'>
+                    <div className='rounded-md overflow-scroll max-h-[40vh]'>
 
                         {privateChats.map((privateChat, index) =>
                         (
@@ -234,7 +266,7 @@ function AllChatsPane({
                 {/* groups */}
                 {
                     tab == 2 &&
-                    <div className='rounded-md overflow-scroll max-h-[55vh]'>
+                    <div className='rounded-md overflow-scroll max-h-[40vh]'>
 
                         {groups.map((group, index) =>
                         (
@@ -278,12 +310,7 @@ function AllChatsPane({
                     {/* button to see received requests */}
                     <Button
                         onClick={() => {
-                            const friendshipRequestService = new FriendshipRequestService()
-                            friendshipRequestService.getReceivedFriendshipRequests(jwt)
-                                .then((frndReqs) => {
-                                    console.log(frndReqs);
-                                    setFrndRequests(frndReqs);
-                                })
+                            // open modal to show the requests
                             document.getElementById('frdReqModal').showModal()
                         }}
                     >
@@ -293,20 +320,20 @@ function AllChatsPane({
                     {/* Friend Request Modal */}
                     <UserModal id="frdReqModal" header="Received Requests">
                         {
-                            frndRequests.length == 0
+                            receivedFriendshipRequests.length == 0
                                 ?
                                 <div>
                                     No Friend Requeest yet...
                                 </div>
                                 :
-                                frndRequests.map((reqs) => (
+                                receivedFriendshipRequests.map((req) => (
                                     <UserAvatar
-                                        key={reqs.id}
-                                        requestId={reqs.id}
-                                        userId={userId}
-                                        name={reqs.sender_name}
+                                        key={req.requestId}
+                                        requestId={req.requestId}
+                                        userId={req.senderId}
+                                        name={req.senderName}
                                         imgSrc={"https://placehold.jp/100x100.png"}
-                                        email={reqs.sender_email}
+                                        email={req.senderEmail}
                                         showRequestActions={true}
                                         modalId="frdReqModal"
                                     />
@@ -365,7 +392,7 @@ function AllChatsPane({
                                         render={({ field: { onChange, value = [] } }) => (  // Ensure value is an array (default empty array)
                                             <>
                                                 {privateChats.map((privateChat, index) => (
-                                                    <div key={privateChat.id}>
+                                                    <div key={privateChat.privateChatId}>
                                                         <CheckBox
                                                             label={
                                                                 privateChat.user1Id == userId
