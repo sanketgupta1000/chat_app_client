@@ -7,7 +7,7 @@ const initialState = {
     // each object of members[] will have
     // memberId, memberName
     // each object in messages[] will have
-    // senderId, senderName, sentDateTime, content
+    // messageId, senderId, senderName, sentDateTime, content
 };
 
 const groupSlice = createSlice(

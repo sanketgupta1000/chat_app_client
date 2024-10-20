@@ -19,6 +19,8 @@ function AuthLayout({children, authRequired})
     useEffect(()=>
     {
 
+        setLoading(true);
+
         if(authRequired && (!isLoggedIn))
         {
             // auth required but not logged in, redirect to login
@@ -28,7 +30,7 @@ function AuthLayout({children, authRequired})
         {
             // auth not required, but logged in
             // redirect to home
-            navigate(`/home/users/${userId}`);
+            navigate(`/home`);
             // navigate("/home/user1");
         }
 

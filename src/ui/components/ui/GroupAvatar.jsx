@@ -1,20 +1,23 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 function GroupAvatar({
     groupId,
     groupName,
+    groupIndex,
     imgSrc,
     lastMessage,
     lastMessageFrom,
     memberNames,
     rounded=true,
     isLink=true,
-    to
+    to,
+    className=""
 })
 {
 
     const GroupCard = (
-        <div className={`card card-side flex-wrap bg-base-100 ${rounded?"":"rounded-none"} p-3 justify-between ${isLink?"hover:bg-base-200":""}`}>
+        <div className={`card card-side flex-wrap bg-base-100 ${rounded?"":"rounded-none"} p-3 justify-between ${isLink?"hover:bg-base-200":""} ${className}`}>
 
             {/* group image, name, and memberNames or message */}
             <div className='flex flex-row items-center justify-between'>
@@ -47,9 +50,9 @@ function GroupAvatar({
     return (
 
         (isLink?
-        <a href={to?to:`/groups/${groupId}`}>
+        <Link to={to?to:`/home/groups/${groupIndex}`}>
             {GroupCard}
-        </a>
+        </Link>
         :
         {GroupCard}
         )

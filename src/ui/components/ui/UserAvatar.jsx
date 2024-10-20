@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Button from '../input/Button';
 import { useDispatch } from "react-redux";
 import { useSelector } from 'react-redux';
@@ -6,7 +6,8 @@ import { useNavigate, Link } from "react-router-dom";
 import FriendshipRequestService from '../../../services/friendshipRequestService';
 import PrivateChatService from '../../../services/privateChatService';
 import toast from "react-hot-toast";
-import { setPrivateChats } from '../../../store/slices';
+import { removeReceivedRequest, setPrivateChats } from '../../../store/slices';
+import LoadingSpinner from './LoadingSpinner';
 
 // a general component to display user
 // will be used to: display the current user's profile on top of leftsidepane, display the private chats, group members, user's preview as a suggested user , etc
@@ -33,6 +34,13 @@ function UserAvatar({
     const jwt = useSelector(state=>state.user.token);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    const receivedFriendshipRequests = useSelector(state=>state.friendshipRequests.receivedFriendshipRequests);
+
+    // is the request being responded to?
+    const [isResponding, setResponding] = useState(false);
+    const [respondingMsg, setRespondingMsg] = useState("");
+
     function closeModal()
     {
         const modal = document.getElementById(modalId);
@@ -43,39 +51,46 @@ function UserAvatar({
 
     function respondRequest(requestId, response)
     {
+        setResponding(true);
+        if(response)
+        {
+            setRespondingMsg("Accepting...");
+        }
+        else
+        {
+            setRespondingMsg("Rejecting...");
+        }
+
         const friendshipRequestService = new FriendshipRequestService();
-        const privateChatService = new PrivateChatService();
         friendshipRequestService.respondToFriendshipRequest({jwt: jwt, requestId: requestId, response: response})
         .then(() => {
+
+            // responded successfully
+            // close modal
             closeModal();
-            navigate(`/home/users/${userId}`);
+
+            // navigate(`/home/users/${userId}`);
             if(response)
             {
-                // Response accepted so getting all chats including new private chat.
-                privateChatService.getAllPrivateChats(jwt).then((privateChats) => {
-                    privateChats = privateChats.map(((chat)=>{
-                        return {
-                            privateChatId: chat.id,
-                            user1Id: chat.user1_id,
-                            user2Id: chat.user2_id,
-                            user1Name: chat.user1_name,
-                            user2Name: chat.user2_name,
-                            lastMsg: chat.last_msg,
-                            lastMsgSenderId: chat.last_msg_sender_id,
-                            messages: []
-                        };
-                    }));
-
-                    console.log(privateChats);
-                    dispatch(setPrivateChats({
-                        privateChats: privateChats
-                    }));
-                });
                 toast.success("Request Accepted !");
             }
             else
-                toast.success("Request Rejectd !");
+                toast.success("Request Rejected !");
+
+            // now remove the request from redux store
+            const index = receivedFriendshipRequests.findIndex((f)=>f.requestId==requestId);
+            if(index!=-1)
+            {
+                dispatch(removeReceivedRequest({
+                    index: index
+                }));
+            }
         })
+        // TODO: handle errors
+        .finally(()=>
+        {
+            setResponding(false);
+        });
     }
 
     const UserCard = (
@@ -128,7 +143,10 @@ function UserAvatar({
 
             {/* accept and reject buttons for request */}
             {
-            showRequestActions && 
+            showRequestActions &&
+            (
+            (!isResponding)
+            ?
             <div className='flex justify-end mt-4'>
                 <Button
                     className="me-2"
@@ -161,6 +179,13 @@ function UserAvatar({
                 </Button>
 
             </div>
+            :
+            <div className="flex justify-end mt-4">
+                <LoadingSpinner
+                    message={respondingMsg}
+                />
+            </div>
+            )
             }
 
             {/* send request button */}
@@ -194,7 +219,11 @@ function UserAvatar({
     return (
 
       (isLink?
-        <Link to={to?to:`/home/users/${userId}`}>
+        <Link
+            to={to?to:`/home/users/${userId}`}
+            // close modal on click if it is a link
+            onClick={closeModal}
+        >
 
             {UserCard}
 

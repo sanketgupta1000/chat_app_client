@@ -8,6 +8,7 @@ import UserAvatar from '../components/ui/UserAvatar';
 import Input from '../components/input/Input';
 import Button from '../components/input/Button';
 import toast from 'react-hot-toast';
+import GroupAvatar from '../components/ui/GroupAvatar';
 function GroupChatPane()
 {
     // get the group chat index from params
@@ -91,7 +92,7 @@ function GroupChatPane()
     // useeffect to fetch after first render if no messages in group.messages
     useEffect(()=>
     {
-        if(group.messages.length === 0)
+        if(group.messages.length < 10)
         {
             fetchMessages();
         }
@@ -141,16 +142,17 @@ function GroupChatPane()
     return (
         <div>
             {/* user avatar */}
-            <UserAvatar
-                userId={groupId}
-                name={groupName}
+            <GroupAvatar
+                groupId={groupId}
+                groupIndex={groupChatIndex}
+                groupName={groupName}
                 imgSrc={"https://placehold.jp/100x100.png"}
                 rounded={false}
-                className='absolute top-0 w-full'       
+                className='absolute top-0 w-full'     
             />
             
             {/* chatbubbles */}
-            <div className="my-20 h-[75vh] overflow-scroll flex flex-col-reverse" onScroll={handleScroll} ref={chatBubblesRef}>
+            <div className="mt-[88px] mb-[96px] overflow-scroll flex flex-col-reverse" style={{ height: 'calc(100vh - 184px)' }} onScroll={handleScroll} ref={chatBubblesRef}>
                 
                 {group.messages.map((m) => 
                 {
