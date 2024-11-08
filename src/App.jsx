@@ -4,12 +4,13 @@ import AllChatsPane from "./ui/panes/AllChatsPane"
 import { useDispatch, useSelector } from "react-redux";
 import AuthService from "./services/authService";
 import { addGroup, addNewerChatMessage, addNewerGroupChatMessage, addPrivateChat, addReceivedRequest, login, logout, setGroups, setPrivateChats, setReceivedRequests } from "./store/slices";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import PrivateChatService from "./services/privateChatService";
 import GroupChatService from "./services/groupChatService";
 import FriendshipRequestService from "./services/friendshipRequestService";
 import useSocket from "./hooks/useSocket";
+import { handleErrorsAfterLogin } from "./utils/errors/handlers";
 
 function App() {
 
@@ -26,6 +27,9 @@ function App() {
     const privateChats = useSelector(state=>state.privateChats.privateChats);
 
     const groups = useSelector(state => state.groups.groups);
+
+    const navigate = useNavigate();
+
     // fetch user after first render
     useEffect(()=>
     {
@@ -153,7 +157,7 @@ function App() {
             {
                 console.log(err);
                 // show in a toast
-                toast.error("Failed to fetch data");
+                handleErrorsAfterLogin(err, navigate);
             })
             .finally(()=>
             {

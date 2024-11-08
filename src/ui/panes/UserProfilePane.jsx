@@ -8,6 +8,7 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { useSelector, useDispatch } from 'react-redux';
 import Button from '../components/input/Button';
 import { logout, setToken } from '../../store/slices/userSlice';
+import { handleErrorsAfterLogin } from '../../utils/errors/handlers';
 
 function UserProfilePane()
 {
@@ -20,6 +21,8 @@ function UserProfilePane()
 
     const[isLoading, userDetails, error] = useUserDetails({userId, jwt});
 
+    const navigate = useNavigate();
+
     useEffect(()=>
     {
 
@@ -27,28 +30,8 @@ function UserProfilePane()
         {
             if(error)
             {
-                if(error instanceof NetworkError)
-                {
-                    // show toast
-                    toast.error("Cannot connect to server. Please check your internet connection.");
-                }
-                else if(error instanceof InvalidCredentialsError)
-                {
-                    // show toast
-                    toast.error("Session expired. Please login again.");
-                }
-                else if(error instanceof InvalidDataError)
-                {
-                    toast.error("Invalid data given. Please try again.");
-                }
-                else if(error instanceof UserNotFoundError)
-                {
-                    toast.error("User not found.");
-                }
-                else
-                {
-                    toast.error("An unknown error occurred. Please try again.");
-                }
+                console.log(error);
+                handleErrorsAfterLogin(error, navigate);
             }
             else
             {

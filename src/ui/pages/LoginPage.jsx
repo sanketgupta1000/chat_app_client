@@ -12,6 +12,7 @@ import { InvalidCredentialsError, UserNotFoundError } from "../../utils/errors/u
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { setToken } from "../../store/slices/userSlice";
+import { handleErrorsBeforeLogin } from "../../utils/errors/handlers";
 
 
 function LoginPage() {
@@ -46,27 +47,8 @@ function LoginPage() {
         })
         .catch((err)=>
         {
-            if(err instanceof NetworkError)
-            {
-                // show toast
-                toast.error("Cannot connect to server, please check your internet connection");
-            }
-            else if(err instanceof InvalidDataError)
-            {
-                toast.error("Invalid inputs, please check your data and try again");
-            }
-            else if(err instanceof UserNotFoundError)
-            {
-                toast.error("User not found, please check your email");
-            }
-            else if(err instanceof InvalidCredentialsError)
-            {
-                toast.error("Invalid credentials");
-            }
-            else
-            {
-                toast.error("An unknown error occured");
-            }
+            console.log(err);
+            handleErrorsBeforeLogin(err);
         })
         .finally(()=>
         {

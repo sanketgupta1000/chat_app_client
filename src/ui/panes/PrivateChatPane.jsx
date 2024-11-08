@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import UserAvatar from '../components/ui/UserAvatar';
 import ChatBubble from '../components/ui/ChatBubble';
 import Input from '../components/input/Input';
@@ -8,6 +8,7 @@ import Button from '../components/input/Button';
 import PrivateChatService from '../../services/privateChatService';
 import { addNewerChatMessage, addOlderChatMessage } from '../../store/slices/privateChatsSlice';
 import toast from 'react-hot-toast';
+import { handleErrorsAfterLogin } from '../../utils/errors/handlers';
 
 
 function PrivateChatPane()
@@ -39,6 +40,8 @@ function PrivateChatPane()
 
     // ref for chat bubbles container
     const chatBubblesRef = useRef(null);
+
+    const navigate = useNavigate();
 
     // function to fetch messages
     const fetchMessages = useCallback(()=>
@@ -80,8 +83,7 @@ function PrivateChatPane()
             .catch((e)=>
             {
                 console.log(e);
-                // show in toast
-                toast.error("Failed to fetch older messages");
+                handleErrorsAfterLogin(e, navigate);
             })
             .finally(()=>
             {
@@ -150,8 +152,7 @@ function PrivateChatPane()
                 console.log(e);
                 // restore textarea
                 newMessageRef.current.value = message;
-                // show in toast
-                toast.error("Failed to send message");
+                handleErrorsAfterLogin(e, navigate);
             });
         }
     },[newMessageRef, jwt, privateChat, privateChatIndex, dispatch, addNewerChatMessage]);
