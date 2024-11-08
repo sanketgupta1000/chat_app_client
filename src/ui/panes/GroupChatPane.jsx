@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import GroupChatService from '../../services/groupChatService';
 import { addNewerGroupChatMessage, addOlderGroupChatMessage } from '../../store/slices/groupsSlice';
 import ChatBubble from '../components/ui/ChatBubble';
@@ -9,6 +9,7 @@ import Input from '../components/input/Input';
 import Button from '../components/input/Button';
 import toast from 'react-hot-toast';
 import GroupAvatar from '../components/ui/GroupAvatar';
+import { handleErrorsAfterLogin } from '../../utils/errors/handlers';
 function GroupChatPane()
 {
     // get the group chat index from params
@@ -35,6 +36,8 @@ function GroupChatPane()
 
     // ref for chat bubbles container
     const chatBubblesRef = useRef(null);
+
+    const navigate = useNavigate();
 
     const fetchMessages = useCallback(() => {
         console.log("fetchMessages called. isFetching.current: "+isFetching.current);
@@ -71,8 +74,7 @@ function GroupChatPane()
             })
             .catch((err) => {
                 console.log(err);
-                // show in toast
-                toast.error("Failed to fetch older messages");
+                handleErrorsAfterLogin(err, navigate);
             })
             .finally(() => {
                 isFetching.current = false;
@@ -133,8 +135,7 @@ function GroupChatPane()
                 console.log(err);
                 // restore textarea
                 newMessageRef.current.value = message;
-                // show in toast
-                toast.error("Failed to send message");
+                handleErrorsAfterLogin(err, navigate);
             });
         }
     },[newMessageRef, jwt, group, groupChatIndex, dispatch, addNewerGroupChatMessage]);

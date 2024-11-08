@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { InvalidDataError, NetworkError } from "../../utils/errors/sharedErrors";
 import { UserExistsError } from "../../utils/errors/userErrors";
 import toast from "react-hot-toast";
+import { handleErrorsBeforeLogin } from "../../utils/errors/handlers";
 
 
 function SignupPage() {
@@ -69,22 +70,8 @@ function SignupPage() {
         })
         .catch((err)=>
         {
-            if(err instanceof NetworkError)
-            {
-                toast.error("Failed to connect to server, please check your network connection and try again.");
-            }
-            else if(err instanceof InvalidDataError)
-            {
-                toast.error("Incorrect inputs given, please try again.");
-            }
-            else if(err instanceof UserExistsError)
-            {
-                toast.error("Email is already registered, please login.");
-            }
-            else
-            {
-                toast.error("An unknown error occured, please try again.");
-            }
+            console.log(err);
+            handleErrorsBeforeLogin(err);
         })
         .finally(()=>
         {
@@ -103,6 +90,7 @@ function SignupPage() {
                 // log for now
                 console.log(error);
                 // will show in a toast afterwards
+                handleErrorsBeforeLogin(error);
             }
             else
             {

@@ -17,10 +17,14 @@ import { InvalidCredentialsError } from "../../utils/errors/userErrors";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { addGroup } from '../../store/slices';
+import { handleErrorsAfterLogin } from '../../utils/errors/handlers';
+import { useNavigate } from 'react-router-dom';
 
 function AllChatsPane({
     className = ""
 }) {
+
+    const navigate = useNavigate();
 
     // user id, and email from redux store
     const { userId, userEmail, userName } = useSelector(state => state.user);
@@ -95,18 +99,8 @@ function AllChatsPane({
         })
         .catch((err) => 
         {
-            if(err instanceof NetworkError)
-            {
-                toast.error("Failed to connect to server, please check your network connection and try again.");
-            }
-            else if(err instanceof InvalidCredentialsError)
-            {
-                toast.error("Invalid data");
-            }
-            else if(err instanceof UnknownError)
-            {
-                toast.error("An unknown error occured, please try again.")
-            }
+            console.log(err);
+            handleErrorsAfterLogin(err, navigate);
         })
         .finally(() => 
         {
@@ -142,7 +136,8 @@ function AllChatsPane({
                             })
                             .catch((error)=>
                             {
-                                toast.error("Failed to find users!");
+                                console.log(error);
+                                handleErrorsAfterLogin(error, navigate);
                             })
                             .finally(()=>
                             {

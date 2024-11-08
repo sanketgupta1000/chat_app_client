@@ -8,6 +8,7 @@ import PrivateChatService from '../../../services/privateChatService';
 import toast from "react-hot-toast";
 import { removeReceivedRequest, setPrivateChats } from '../../../store/slices';
 import LoadingSpinner from './LoadingSpinner';
+import { handleErrorsAfterLogin } from '../../../utils/errors/handlers';
 
 // a general component to display user
 // will be used to: display the current user's profile on top of leftsidepane, display the private chats, group members, user's preview as a suggested user , etc
@@ -86,7 +87,11 @@ function UserAvatar({
                 }));
             }
         })
-        // TODO: handle errors
+        .catch((error)=>
+        {
+            console.log(error);
+            handleErrorsAfterLogin(error, navigate);
+        })
         .finally(()=>
         {
             setResponding(false);
@@ -152,8 +157,6 @@ function UserAvatar({
                     className="me-2"
                     onClick={(e)=>
                     {
-                        // dummy method for now
-                        // TODO: use the service there
                         e.stopPropagation();
                         e.preventDefault();
                         respondRequest(requestId, true);
@@ -203,6 +206,11 @@ function UserAvatar({
                             console.log(res);
                             closeModal();
                             toast.success("Request Sent successfully!");
+                        })
+                        .catch((error)=>
+                        {
+                            console.log(error);
+                            handleErrorsAfterLogin(error, navigate);
                         });
                     }
                     }
