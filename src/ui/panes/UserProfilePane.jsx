@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import useUserDetails from '../../hooks/useUserDetails';
 import { InvalidDataError, NetworkError } from '../../utils/errors/sharedErrors';
@@ -9,6 +9,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import Button from '../components/input/Button';
 import { logout, setToken } from '../../store/slices/userSlice';
 import { handleErrorsAfterLogin } from '../../utils/errors/handlers';
+import FriendshipRequestService from '../../services/friendshipRequestService';
+import { removeReceivedRequest } from '../../store/slices';
 
 function UserProfilePane()
 {
@@ -19,9 +21,40 @@ function UserProfilePane()
     // get token from redux
     const jwt = useSelector(state=>state.user.token);
 
-    const[isLoading, userDetails, error] = useUserDetails({userId, jwt});
+    // get current user id
+    const currentUserId = useSelector(state=>state.user.userId);
+
+    // get the list of friends of the current user
+    const privateChats = useSelector(state=>state.privateChats.privateChats);
+
+    const[isLoading, userDetails, setUserDetails, error] = useUserDetails({userId, jwt});
 
     const navigate = useNavigate();
+
+    // is it the current user's profile?
+    const isCurrentUser = userId == currentUserId;
+
+    // chatIndex in case they are friends
+    let chatIndex = null;
+    for(let i=0; i<privateChats.length; i++)
+    {
+        if(
+            (privateChats[i].user1Id==userId && privateChats[i].user2Id==currentUserId)
+            ||
+            (privateChats[i].user1Id==currentUserId && privateChats[i].user2Id==userId)
+        )
+        {
+            chatIndex = i;
+            break;
+        }
+    }
+
+    const [isSending, setSending] = useState(false);
+
+    const [isResponding, setResponding] = useState(false);
+    const [respondingMsg, setRespondingMsg] = useState("");
+
+    const receivedFriendshipRequests = useSelector(state=>state.friendshipRequests.receivedFriendshipRequests);
 
     useEffect(()=>
     {
@@ -60,6 +93,9 @@ function UserProfilePane()
                     </div>
                     </div>
                     <div className="absolute right-3 top-3">
+
+                    {/* if it is the current user's profile */}
+                    {isCurrentUser &&
                     <Button className="ml-4" colour="primary"
                         onClick={() => 
                             {
@@ -69,6 +105,7 @@ function UserProfilePane()
                     >
                         Logout
                     </Button>
+                    }
                     </div>
                 </div>
                     {/* name and email */}
@@ -76,6 +113,200 @@ function UserProfilePane()
                     <h2 className="text-xl font-bold">{userDetails.name}</h2>
                     <h3 className="text-lg opacity-50">{userDetails.email}</h3>
                 </div>
+
+                {/* send request button */}
+                {userDetails.canSendFriendRequest &&
+                    <div className="flex flex-col items-center p-3">
+
+                        <Button
+                            loading={isSending}
+                            onClick={()=>
+                            {
+                                setSending(true);
+
+                                // send friend request
+                                const friendshipRequestService = new FriendshipRequestService();
+                                friendshipRequestService.sendFriendshipRequest({jwt: jwt, receiverId: userId})
+                                .then(()=>
+                                {
+                                    toast.success("Request Sent successfully!");
+
+                                    // change the state of the user details
+                                    setUserDetails((prev)=>
+                                    {
+                                        return {
+                                            ...prev,
+                                            canSendFriendRequest: false,
+                                            hasSentFriendRequest: true
+                                        };
+                                    });
+
+                                })
+                                .catch((error)=>
+                                {
+                                    console.log(error);
+                                    handleErrorsAfterLogin(error, navigate);
+                                })
+                                .finally(()=>
+                                {
+                                    setSending(false);
+                                });
+
+                            }}
+                        >
+                            {isSending?"Sending...":"Send Request"}
+                        </Button>
+
+                    </div>
+                }
+
+                {/* requested button in case request is sent and not responded */}
+                {userDetails.hasSentFriendRequest &&
+                
+                    <div className="flex flex-col items-center p-3">
+                            
+                            <Button
+                                disabled={true}
+                            >
+                                Requested ✅
+                            </Button>
+                    </div>
+
+                }
+
+                {/* accept and reject request buttons in case other has sent */}
+                {userDetails.canRespondToFriendRequest && (!isResponding) &&
+                
+                    <div className="flex flex-col items-center p-3">
+                                
+                        <Button
+                            onClick={()=>
+                            {
+                                setResponding(true);
+                                setRespondingMsg("Accepting...");
+                                const friendshipRequestService = new FriendshipRequestService();
+                                friendshipRequestService.respondToFriendshipRequest({jwt: jwt, requestId: userDetails.requestId, response: true})
+                                .then(()=>
+                                {
+                                    toast.success("Request Accepted successfully!");
+
+                                    const index = receivedFriendshipRequests.findIndex((f)=>f.requestId==userDetails.requestId);
+                                    if(index!=-1)
+                                    {
+                                        dispatch(removeReceivedRequest({
+                                            index: index
+                                        }));
+                                    }
+
+                                    // change the state of the user details
+                                    setUserDetails((prev)=>
+                                    {
+                                        return {
+                                            ...prev,
+                                            canRespondToFriendRequest: false,
+                                            hasRespondedToFriendRequest: true,
+                                            responseToFriendRequest: "accepted",
+                                            areFriends: true
+                                        };
+                                    });
+
+                                })
+                                .catch((error)=>
+                                {
+                                    console.log(error);
+                                    handleErrorsAfterLogin(error, navigate);
+                                })
+                                .finally(()=>
+                                {
+                                    setResponding(false);
+                                    setRespondingMsg("");
+                                });
+                            }}
+                        >
+                            Accept
+                        </Button>
+
+                        <Button
+                            onClick={()=>
+                            {
+                                setResponding(true);
+                                setRespondingMsg("Rejecting...");
+                                const friendshipRequestService = new FriendshipRequestService();
+                                friendshipRequestService.respondToFriendshipRequest({jwt: jwt, requestId: userDetails.requestId, response: false})
+                                .then(()=>
+                                {
+                                    toast.success("Request Rejected successfully!");
+
+                                    const index = receivedFriendshipRequests.findIndex((f)=>f.requestId==userDetails.requestId);
+                                    if(index!=-1)
+                                    {
+                                        dispatch(removeReceivedRequest({
+                                            index: index
+                                        }));
+                                    }
+
+                                    // change the state of the user details
+                                    setUserDetails((prev)=>
+                                    {
+                                        return {
+                                            ...prev,
+                                            canRespondToFriendRequest: false,
+                                            hasRespondedToFriendRequest: true,
+                                            responseToFriendRequest: "rejected"
+                                        };
+                                    });
+                                })
+                                .catch((error)=>
+                                {
+                                    console.log(error);
+                                    handleErrorsAfterLogin(error, navigate);
+                                })
+                                .finally(()=>
+                                {
+                                    setResponding(false);
+                                    setRespondingMsg("");
+                                });
+                            }}
+                        >
+                            Reject
+                        </Button>
+                    </div>
+
+                }
+
+                {/* responding message */}
+                {isResponding &&
+                    <div className="flex flex-col items-center p-3">
+                        <p>{respondingMsg}</p>
+                    </div>
+                }
+
+                {/* responded message */}
+                {userDetails.hasRespondedToFriendRequest &&
+                    <div className="flex flex-col items-center p-3">
+                        <Button
+                            disabled={true}
+                        >
+                            {(userDetails.responseToFriendRequest=="accepted")?"Accepted":"Rejected"} ✅
+                        </Button>
+                    </div>
+                }
+
+                {/* chat button */}
+                {userDetails.areFriends &&
+                
+                    <div className="flex flex-col items-center p-3">
+                        <Button
+                            onClick={()=>
+                            {
+                                navigate(`/home/private-chats/${chatIndex}`);
+                            }}
+                        >
+                            Chat
+                        </Button>
+                    </div>
+                }
+
 
                 {/* description */}
                 <div>

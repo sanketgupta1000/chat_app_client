@@ -38,6 +38,10 @@ function UserAvatar({
 
     const receivedFriendshipRequests = useSelector(state=>state.friendshipRequests.receivedFriendshipRequests);
 
+    // is the request being sent?
+    const [isSending, setSending] = useState(false);
+    const [sendingMsg, setSendingMsg] = useState("");
+
     // is the request being responded to?
     const [isResponding, setResponding] = useState(false);
     const [respondingMsg, setRespondingMsg] = useState("");
@@ -196,8 +200,10 @@ function UserAvatar({
             showSendRequestBtn && 
             <div className='flex mt-4'>
                 <Button
+                    loading={isSending}
                     onClick={(e)=>
                     {
+                        setSending(true);
                         e.stopPropagation();
                         e.preventDefault();
                         const friendshipRequestService = new FriendshipRequestService();
@@ -211,11 +217,15 @@ function UserAvatar({
                         {
                             console.log(error);
                             handleErrorsAfterLogin(error, navigate);
+                        })
+                        .finally(()=>
+                        {
+                            setSending(false);
                         });
                     }
                     }
                 >
-                    Send Request
+                    {isSending?"Sending...":"Send Request"}
                 </Button>
             </div>
             }

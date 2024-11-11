@@ -47,18 +47,19 @@ function AllChatsPane({
     const groups = useSelector(state => state.groups.groups);
 
     // react hook form
-    const { register, handleSubmit, control, formState } = useForm();
+    const { register, handleSubmit, control, formState, reset } = useForm();
     // errors
     const { errors } = formState;
 
     const dispatch = useDispatch();
 
-    useEffect(() => 
-    {
-        // Trigger UI update when groups state changes
-    }, [groups]);
+    const [isCreatingGroup, setCreatingGroup] = useState(false);
 
     const handleCreateGroup = (data) => {
+
+        // set the loading state
+        setCreatingGroup(true);
+
         const memberIds = []
         // console.log(data);
 
@@ -95,6 +96,8 @@ function AllChatsPane({
                         })
                 }
             }));
+            // reset the form
+            reset();
             toast.success("Group created successfully!");
         })
         .catch((err) => 
@@ -105,7 +108,8 @@ function AllChatsPane({
         .finally(() => 
         {
             document.getElementById("createGroup").close();
-        })
+            setCreatingGroup(false);
+        });
     }
 
     return (
@@ -414,8 +418,9 @@ function AllChatsPane({
                                 }
                                 <Button
                                     type='submit'
+                                    loading={isCreatingGroup}
                                 >
-                                    Create Group
+                                    {isCreatingGroup ? "Creating Group..." : "Create Group"}
                                 </Button>
                             </form>
                         }
