@@ -192,7 +192,12 @@ function SignupPage() {
                                     },
                                 }}
                                 render={({ field: { onChange, value } }) => (
-                                    <>
+                                    <label className="form-control w-full max-w-xs">
+
+                                        <div className="label">
+                                            <span className="label-text">Interests</span>
+                                        </div>
+
                                         {fields.map((field, index) => (
                                             <div key={field.id}>
                                                 <CheckBox
@@ -206,7 +211,7 @@ function SignupPage() {
                                                 ></CheckBox>
                                             </div>
                                         ))}
-                                    </>
+                                    </label>
                                 )}
                             />
                             {

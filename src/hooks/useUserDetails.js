@@ -34,7 +34,7 @@ function useUserDetails({userId, jwt})
 
     }, [userId]);
 
-    return [isLoading, userDetails, error];
+    return [isLoading, userDetails, setUserDetails, error];
 }
 
 export default useUserDetails;
