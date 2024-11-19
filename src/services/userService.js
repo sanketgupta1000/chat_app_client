@@ -51,6 +51,48 @@ class UserService
         // all good
         return (await response.json()).user;
     }
+
+    // method to search users by name or email
+    async getUsersBySearchKey({searchKey, jwt, limit, offset})
+    {
+        let response;
+        try
+        {
+            response = await fetch(
+                config.baseUrl + "/api/users?searchKey="+searchKey+"&limit="+limit+"&offset="+offset,
+                {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${jwt}`
+                    }
+                }
+            );
+        }
+        catch(e)
+        {
+            console.log(e);
+            throw new NetworkError();
+        }
+
+        // got response
+        if(response.status==401)
+        {
+            // invalid credentials
+            throw new InvalidCredentialsError();
+        }
+        else if(response.status==422)
+        {
+            // invalid data
+            throw new InvalidDataError();
+        }
+        else if(response.status!=200)
+        {
+            throw new UnknownError();
+        }
+
+        // all good
+        return (await response.json()).users;
+    }
 }
 
 export default UserService;

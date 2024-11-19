@@ -19,6 +19,7 @@ import { useDispatch } from "react-redux";
 import { addGroup } from '../../store/slices';
 import { handleErrorsAfterLogin } from '../../utils/errors/handlers';
 import { useNavigate } from 'react-router-dom';
+import Tooltip from '../components/ui/Tooltip';
 
 function AllChatsPane({
     className = ""
@@ -211,6 +212,18 @@ function AllChatsPane({
 
                     <div className='rounded-md overflow-scroll max-h-[40vh]'>
 
+                        {/* search button on top */}
+                        <Button
+                            onClick={()=>
+                            {
+                                navigate("/home/search-users")
+                            }
+                            }
+                            className='w-full'
+                        >
+                            Search Users
+                        </Button>
+
                         {privateChats.map((privateChat, index) =>
                         (
                             <UserAvatar
@@ -266,6 +279,18 @@ function AllChatsPane({
                 {
                     tab == 2 &&
                     <div className='rounded-md overflow-scroll max-h-[40vh]'>
+
+                        {/* search button on top */}
+                        <Button
+                            onClick={()=>
+                            {
+                                navigate("/home/search-your-groups")
+                            }
+                            }
+                            className='w-full'
+                        >
+                            Search Your Groups
+                        </Button>
 
                         {groups.map((group, index) =>
                         (
