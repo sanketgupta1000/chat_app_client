@@ -7,13 +7,14 @@ const Input = forwardRef(function({
     type="text",
     placeholder,
     className="",
+    isFullWidth=false,
     ...props
 }, ref)
 {
 
     return (
 
-        <label className="form-control w-full max-w-xs">
+        <label className={`form-control w-full ${isFullWidth?"":"max-w-xs"}`}>
 
             {/* display label if exists */}
             {label && 
@@ -41,7 +42,7 @@ const Input = forwardRef(function({
             <input
                 type={type}
                 placeholder={placeholder?placeholder:""}
-                className={`input input-bordered w-full max-w-xs ${className}`}
+                className={`input input-bordered w-full ${isFullWidth?"":"max-w-xs"} ${className}`}
                 // expose the dom element
                 ref={ref}
                 {...props}

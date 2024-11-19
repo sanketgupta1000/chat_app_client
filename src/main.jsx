@@ -15,6 +15,8 @@ import PrivateChatPane from './ui/panes/PrivateChatPane.jsx';
 import SocketContextProvider from './contexts/SocketContextProvider.jsx';
 import GroupChatPane from './ui/panes/GroupChatPane.jsx';
 import GroupInfoPane from './ui/panes/GroupInfoPane.jsx';
+import SearchUsersPane from './ui/panes/SearchUsersPane.jsx';
+import SearchGroupPane from './ui/panes/SearchGroupPane.jsx';
 
 const router = createBrowserRouter(
 
@@ -53,6 +55,19 @@ const router = createBrowserRouter(
                     path='group-chats/:groupChatIndex/'
                     element={<GroupChatPane/>}
                 />
+
+                {/* search users page */}
+                <Route
+                    path='search-users/'
+                    element={<SearchUsersPane/>}
+                />
+
+                {/* search your groups page */}
+                <Route
+                    path='search-your-groups'
+                    element={<SearchGroupPane/>}
+                />
+
             </Route>
 
             <Route
