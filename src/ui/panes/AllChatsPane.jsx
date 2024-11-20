@@ -347,7 +347,7 @@ function AllChatsPane({
                             receivedFriendshipRequests.length == 0
                                 ?
                                 <div>
-                                    No Friend Requeest yet...
+                                    No Friend Request yet...
                                 </div>
                                 :
                                 receivedFriendshipRequests.map((req) => (
