@@ -4,7 +4,7 @@ import App from './App.jsx'
 import './index.css';
 import { Provider } from 'react-redux';
 import store from './store/store.js';
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, Routes } from 'react-router-dom';
+import { createBrowserRouter, createRoutesFromElements, Navigate, Route, RouterProvider, Routes } from 'react-router-dom';
 import LoginPage from './ui/pages/LoginPage.jsx';
 import AuthLayout from './AuthLayout.jsx';
 import SignupPage from './ui/pages/SignupPage.jsx';
@@ -26,6 +26,12 @@ const router = createBrowserRouter(
             path="/"
             element={<App/>}
         >
+
+            {/* when only "/" is visited, redirect to "/home" */}
+            <Route
+                index={true}
+                element={<Navigate to="/home" replace/>}
+            />
 
             <Route
                 path='home/'
@@ -92,6 +98,12 @@ const router = createBrowserRouter(
                 />
             
             </Route>
+
+            {/* catch all */}
+            <Route
+                path='*'
+                element={<Navigate to="/home" replace/>}
+            />
             
 
         </Route>
